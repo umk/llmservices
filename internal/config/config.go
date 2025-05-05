@@ -25,7 +25,7 @@ func Init() error {
 	// Define command-line flags
 	flag.Usage = func() {
 		w := flag.CommandLine.Output()
-		fmt.Fprint(w, "Usage: vectors option...\n")
+		fmt.Fprint(w, "Usage: llmservices option...\n")
 		fmt.Fprint(w, "Options:\n")
 		flag.PrintDefaults()
 	}
