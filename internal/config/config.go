@@ -9,11 +9,11 @@ import (
 
 type Config struct {
 	// Vectors database repack percentage threshold
-	RepackPercent int `validate:"required,min=1,max=100"`
+	RepackPercent int
 
 	// Pooled vector size. Can be greater or less to the size of
 	// actual vectors operated by a client.
-	VectorSize int `validate:"required,min=1"`
+	VectorSize int
 }
 
 var C = Config{
@@ -41,9 +41,14 @@ func Init() error {
 		os.Exit(2)
 	}
 
-	// Manually validate repack percentage
+	// Validate repack percentage
 	if C.RepackPercent <= 0 || C.RepackPercent > 100 {
 		return errors.New("repack percentage must be between 1 and 100")
+	}
+
+	// Validate vector size
+	if C.VectorSize <= 0 {
+		return errors.New("vector size must be greater than 0")
 	}
 
 	return nil
