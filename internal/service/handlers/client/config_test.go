@@ -3,6 +3,7 @@ package client
 import (
 	"testing"
 
+	"github.com/umk/llmservices/internal/pointer"
 	"github.com/umk/llmservices/pkg/client"
 )
 
@@ -28,7 +29,7 @@ func TestGetClientConfig(t *testing.T) {
 		{
 			name: "OpenAI Preset",
 			input: &clientConfig{
-				Preset: ptr(client.OpenAI),
+				Preset: pointer.Ptr(client.OpenAI),
 			},
 			expected: &client.Config{
 				Preset:      client.OpenAI,
@@ -40,7 +41,7 @@ func TestGetClientConfig(t *testing.T) {
 		{
 			name: "Ollama Preset",
 			input: &clientConfig{
-				Preset: ptr(client.Ollama),
+				Preset: pointer.Ptr(client.Ollama),
 			},
 			expected: &client.Config{
 				Preset:      client.Ollama,
@@ -53,7 +54,7 @@ func TestGetClientConfig(t *testing.T) {
 		{
 			name: "Invalid Preset",
 			input: &clientConfig{
-				Preset: ptr(client.Preset("invalid")),
+				Preset: pointer.Ptr(client.Preset("invalid")),
 			},
 			expectErr: true,
 		},
@@ -77,7 +78,7 @@ func TestGetClientConfig(t *testing.T) {
 		{
 			name: "Preset with Overrides",
 			input: &clientConfig{
-				Preset:      ptr(client.OpenAI),
+				Preset:      pointer.Ptr(client.OpenAI),
 				Key:         "custom-key",
 				Model:       "custom-model",
 				Concurrency: 3,
@@ -294,8 +295,4 @@ func TestSetConfig(t *testing.T) {
 			}
 		})
 	}
-}
-
-func ptr[T any](v T) *T {
-	return &v
 }

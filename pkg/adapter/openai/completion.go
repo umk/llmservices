@@ -9,7 +9,17 @@ import (
 )
 
 func (c *Adapter) GetCompletion(ctx context.Context, req *adapter.CompletionRequest) (adapter.CompletionResponse, error) {
-	// Preparing parameters
+	params := getCompletionRequest(req)
+
+	resp, err := c.Client.Chat.Completions.New(ctx, params)
+	if err != nil {
+		return adapter.CompletionResponse{}, err
+	}
+
+	return getCompletionResponse(resp)
+}
+
+func getCompletionRequest(req *adapter.CompletionRequest) openai.ChatCompletionNewParams {
 	params := openai.ChatCompletionNewParams{
 		Model:            req.Model,
 		FrequencyPenalty: getOpt(req.FrequencyPenalty),
@@ -28,16 +38,14 @@ func (c *Adapter) GetCompletion(ctx context.Context, req *adapter.CompletionRequ
 		params.Tools = append(params.Tools, getTool(&tool))
 	}
 
-	// Calling the API
-	resp, err := c.Client.Chat.Completions.New(ctx, params)
-	if err != nil {
-		return adapter.CompletionResponse{}, err
-	}
+	return params
+}
 
-	// Transforming the result
+func getCompletionResponse(resp *openai.ChatCompletion) (adapter.CompletionResponse, error) {
 	if len(resp.Choices) != 1 {
 		return adapter.CompletionResponse{}, fmt.Errorf("unexpected number of choices: %d", len(resp.Choices))
 	}
+
 	message := resp.Choices[0].Message
 	var content, refusal *string
 	if message.Refusal != "" {
@@ -45,6 +53,7 @@ func (c *Adapter) GetCompletion(ctx context.Context, req *adapter.CompletionRequ
 	} else if message.Content != "" {
 		content = &message.Content
 	}
+
 	result := adapter.CompletionResponse{
 		Message: adapter.AssistantMessage{
 			Content: content,
@@ -55,6 +64,7 @@ func (c *Adapter) GetCompletion(ctx context.Context, req *adapter.CompletionRequ
 			CompletionTokens: resp.Usage.CompletionTokens,
 		},
 	}
+
 	for _, call := range message.ToolCalls {
 		result.Message.ToolCalls = append(result.Message.ToolCalls, adapter.ToolCall{
 			Id: call.ID,
@@ -64,6 +74,7 @@ func (c *Adapter) GetCompletion(ctx context.Context, req *adapter.CompletionRequ
 			},
 		})
 	}
+
 	return result, nil
 }
 

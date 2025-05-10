@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
+	"github.com/umk/llmservices/internal/pointer"
 )
 
 // TestValidateUnion tests the ValidateUnion function
@@ -23,7 +24,7 @@ func TestValidateUnion(t *testing.T) {
 		{
 			name: "valid - one field set",
 			input: TestUnion{
-				OfString: ptr("test"),
+				OfString: pointer.Ptr("test"),
 				OfInt:    nil,
 				OfBool:   nil,
 			},
@@ -41,8 +42,8 @@ func TestValidateUnion(t *testing.T) {
 		{
 			name: "invalid - multiple fields set",
 			input: TestUnion{
-				OfString: ptr("test"),
-				OfInt:    ptr(42),
+				OfString: pointer.Ptr("test"),
+				OfInt:    pointer.Ptr(42),
 				OfBool:   nil,
 			},
 			expectError: true,
@@ -52,7 +53,7 @@ func TestValidateUnion(t *testing.T) {
 			input: TestUnion{
 				OfString: nil,
 				OfInt:    nil,
-				OfBool:   ptr(true),
+				OfBool:   pointer.Ptr(true),
 			},
 			expectError: false,
 		},
@@ -112,8 +113,4 @@ type InvalidPrefixUnion struct {
 type NonPointerUnion struct {
 	OfString *string
 	OfInt    int // Not a pointer type
-}
-
-func ptr[T any](v T) *T {
-	return &v
 }
