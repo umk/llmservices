@@ -192,10 +192,7 @@ func (v *Vectors) getByChunk(
 
 	tmp := vectorsPool.Get(len(vector))
 
-	count := len(chunk.records)
-	for i := range count {
-		r := chunk.records[i]
-
+	for _, r := range chunk.records {
 		if r.vector == nil {
 			continue
 		}

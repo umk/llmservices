@@ -253,3 +253,60 @@ func TestVectors_Repack(t *testing.T) {
 		}
 	}
 }
+
+func TestVectors_DeleteAndQuery(t *testing.T) {
+	v := NewVectors(5)
+
+	// Add vectors with distinct values
+	vec1 := Vector{1.0, 0.0, 0.0} // x-axis
+	vec2 := Vector{0.0, 1.0, 0.0} // y-axis
+	vec3 := Vector{0.0, 0.0, 1.0} // z-axis
+
+	id1 := v.Add(vec1)
+	id2 := v.Add(vec2)
+	id3 := v.Add(vec3)
+
+	// Initial verification - query should return all vectors
+	query := Vector{1.0, 1.0, 1.0} // diagonal vector equally distant from all test vectors
+	results := v.Get([]Vector{query}, 3)
+
+	if len(results) != 3 {
+		t.Fatalf("Expected 3 vectors initially, got %d", len(results))
+	}
+
+	// Check that all IDs are present
+	resultMap := make(map[ID]bool)
+	for _, id := range results {
+		resultMap[id] = true
+	}
+	if !resultMap[id1] || !resultMap[id2] || !resultMap[id3] {
+		t.Errorf("Not all expected vectors were returned before deletion: %v", results)
+	}
+
+	// Delete the second vector
+	if !v.Delete(id2) {
+		t.Fatalf("Failed to delete vector with ID %d", id2)
+	}
+
+	// Query again
+	results = v.Get([]Vector{query}, 3)
+
+	// Should have only 2 results now
+	if len(results) != 2 {
+		t.Fatalf("Expected 2 vectors after deletion, got %d", len(results))
+	}
+
+	// The results should contain id1 and id3, but not id2
+	resultMap = make(map[ID]bool)
+	for _, id := range results {
+		resultMap[id] = true
+	}
+
+	if !resultMap[id1] || !resultMap[id3] {
+		t.Errorf("Missing expected vectors after deletion: %v", results)
+	}
+
+	if resultMap[id2] {
+		t.Errorf("Deleted vector with ID %d was still returned in query", id2)
+	}
+}
