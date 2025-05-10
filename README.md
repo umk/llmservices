@@ -16,3 +16,7 @@ An in-memory vector store and JSON-RPC service via Stdio that uses a brute-force
 | `deleteVectorsBatch` | Deletes multiple vectors from a database in a batch operation | [↗](internal/service/handlers/vectors/vector_models.go) |
 | `searchVectors` | Searches for vectors in a database that are similar to the provided vectors | [↗](internal/service/handlers/vectors/vector_models.go) |
 | `getSimilarity` | Computes the cosine similarity between two vectors | [↗](internal/service/handlers/vectors/vector_models.go) |
+| `setClient` | Configures and initializes a client with specified settings | [↗](internal/service/handlers/client/models.go) |
+| `getCompletion` | Retrieves AI model completions using the configured client | [↗](internal/service/handlers/client/models.go) [↗](pkg/adapter/completion.go) [↗](pkg/adapter/message.go) [↗](pkg/adapter/tool.go) [↗](pkg/adapter/content.go) |
+| `getEmbeddings` | Generates vector embeddings for input text using the configured client | [↗](internal/service/handlers/client/models.go) [↗](pkg/adapter/embeddings.go) |
+| `getStatistics` | Returns statistics about the client, including bytes per token | [↗](internal/service/handlers/client/models.go) |
