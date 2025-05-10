@@ -1,4 +1,4 @@
-package service
+package vectors
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 
 var databases sync.Map
 
-func createDatabase(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
+func CreateDatabase(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	var req createDatabaseRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func createDatabase(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func deleteDatabase(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
+func DeleteDatabase(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	var req deleteDatabaseRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err

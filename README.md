@@ -8,11 +8,11 @@ An in-memory vector store and JSON-RPC service via Stdio that uses a brute-force
 
 | Method | Description | Models |
 |--------|-------------|:--------:|
-| `createDatabase` | Creates a new vector database with specified ID and vector length | [↗](internal/service/db_models.go) |
-| `deleteDatabase` | Deletes a database by ID | [↗](internal/service/db_models.go) |
-| `addVector` | Adds a single vector to a database | [↗](internal/service/vector_models.go) |
-| `deleteVector` | Deletes a vector from a database by ID | [↗](internal/service/vector_models.go) |
-| `addVectorsBatch` | Adds multiple vectors to a database in a batch operation | [↗](internal/service/vector_models.go) |
-| `deleteVectorsBatch` | Deletes multiple vectors from a database in a batch operation | [↗](internal/service/vector_models.go) |
-| `searchVectors` | Searches for vectors in a database that are similar to the provided vectors | [↗](internal/service/vector_models.go) |
-| `getSimilarity` | Computes the cosine similarity between two vectors | [↗](internal/service/vector_models.go) |
+| `createDatabase` | Creates a new vector database with specified ID and vector length | [↗](internal/service/handlers/vectors/db_models.go) |
+| `deleteDatabase` | Deletes a database by ID | [↗](internal/service/handlers/vectors/db_models.go) |
+| `addVector` | Adds a single vector to a database | [↗](internal/service/handlers/vectors/vector_models.go) |
+| `deleteVector` | Deletes a vector from a database by ID | [↗](internal/service/handlers/vectors/vector_models.go) |
+| `addVectorsBatch` | Adds multiple vectors to a database in a batch operation | [↗](internal/service/handlers/vectors/vector_models.go) |
+| `deleteVectorsBatch` | Deletes multiple vectors from a database in a batch operation | [↗](internal/service/handlers/vectors/vector_models.go) |
+| `searchVectors` | Searches for vectors in a database that are similar to the provided vectors | [↗](internal/service/handlers/vectors/vector_models.go) |
+| `getSimilarity` | Computes the cosine similarity between two vectors | [↗](internal/service/handlers/vectors/vector_models.go) |

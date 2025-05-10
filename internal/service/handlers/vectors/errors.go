@@ -1,4 +1,4 @@
-package service
+package vectors
 
 import "github.com/umk/llmservices/internal/jsonrpc"
 

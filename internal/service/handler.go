@@ -2,19 +2,26 @@ package service
 
 import (
 	"github.com/umk/llmservices/internal/jsonrpc"
+	"github.com/umk/llmservices/internal/service/handlers/client"
+	"github.com/umk/llmservices/internal/service/handlers/vectors"
 )
 
 func Handler() *jsonrpc.Handler {
 	return jsonrpc.NewHandler(map[string]jsonrpc.HandlerFunc{
-		"createDatabase": createDatabase,
-		"deleteDatabase": deleteDatabase,
+		"createDatabase": vectors.CreateDatabase,
+		"deleteDatabase": vectors.DeleteDatabase,
 
-		"addVector":          addVector,
-		"deleteVector":       deleteVector,
-		"addVectorsBatch":    addVectorsBatch,
-		"deleteVectorsBatch": deleteVectorsBatch,
-		"searchVectors":      searchVectors,
+		"addVector":          vectors.AddVector,
+		"deleteVector":       vectors.DeleteVector,
+		"addVectorsBatch":    vectors.AddVectorsBatch,
+		"deleteVectorsBatch": vectors.DeleteVectorsBatch,
+		"searchVectors":      vectors.SearchVectors,
 
-		"getSimilarity": getSimilarity,
+		"getSimilarity": vectors.GetSimilarity,
+
+		"setClient":     client.SetClient,
+		"getCompletion": client.GetCompletion,
+		"getEmbeddings": client.GetEmbeddings,
+		"getStatistics": client.GetStatistics,
 	})
 }
