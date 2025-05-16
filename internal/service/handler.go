@@ -19,9 +19,10 @@ func Handler() *jsonrpc.Handler {
 
 		"getSimilarity": vectors.GetSimilarity,
 
-		"setClient":     client.SetClient,
-		"getCompletion": client.GetCompletion,
-		"getEmbeddings": client.GetEmbeddings,
-		"getStatistics": client.GetStatistics,
+		"setClient":           client.SetClient,
+		"getCompletion":       client.GetCompletion,
+		"getThreadCompletion": client.GetThreadCompletion,
+		"getEmbeddings":       client.GetEmbeddings,
+		"getStatistics":       client.GetStatistics,
 	})
 }

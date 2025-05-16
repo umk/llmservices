@@ -40,13 +40,13 @@ func GetCompletion(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 		return nil, errClientNotFound
 	}
 
-	resp, err := cl.GetCompletion(ctx, &req.CompletionRequest)
+	resp, err := cl.Completion(ctx, req.Messages, req.Params)
 	if err != nil {
 		return nil, newCompletionError(err)
 	}
 
 	return c.GetResponse(getCompletionResponse{
-		CompletionResponse: resp,
+		Completion: resp,
 	})
 }
 
@@ -61,13 +61,13 @@ func GetEmbeddings(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 		return nil, errClientNotFound
 	}
 
-	resp, err := cl.GetEmbeddings(ctx, &req.EmbeddingsRequest)
+	resp, err := cl.Embeddings(ctx, req.Input, req.Params)
 	if err != nil {
 		return nil, newEmbeddingsError(err)
 	}
 
 	return c.GetResponse(getEmbeddingsResponse{
-		EmbeddingsResponse: resp,
+		Embeddings: resp,
 	})
 }
 
@@ -87,6 +87,27 @@ func GetStatistics(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	}
 
 	return c.GetResponse(resp)
+}
+
+func GetThreadCompletion(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
+	var req getThreadCompletionRequest
+	if err := c.GetRequestBody(&req); err != nil {
+		return nil, err
+	}
+
+	cl := getClient(req.ClientId)
+	if cl == nil {
+		return nil, errClientNotFound
+	}
+
+	resp, err := cl.ThreadCompletion(ctx, req.Thread, req.Params)
+	if err != nil {
+		return nil, newCompletionError(err)
+	}
+
+	return c.GetResponse(getThreadCompletionResponse{
+		ThreadCompletion: resp,
+	})
 }
 
 func getClient(clientId string) *client.Client {

@@ -27,23 +27,25 @@ type setClientResponse struct{}
 /*** Get completion ***/
 
 type getCompletionRequest struct {
-	adapter.CompletionRequest
-	ClientId string `json:"client_id" validate:"required"`
+	ClientId string                   `json:"client_id" validate:"required"`
+	Messages []adapter.Message        `json:"messages" validate:"required,min=1"`
+	Params   adapter.CompletionParams `json:"params"`
 }
 
 type getCompletionResponse struct {
-	adapter.CompletionResponse
+	adapter.Completion
 }
 
 /*** Get embeddings ***/
 
 type getEmbeddingsRequest struct {
-	adapter.EmbeddingsRequest
-	ClientId string `json:"client_id" validate:"required"`
+	Input    string                   `json:"input" validate:"required"`
+	Params   adapter.EmbeddingsParams `json:"params"`
+	ClientId string                   `json:"client_id" validate:"required"`
 }
 
 type getEmbeddingsResponse struct {
-	adapter.EmbeddingsResponse
+	adapter.Embeddings
 }
 
 /*** Get statistics ***/
@@ -54,4 +56,16 @@ type getStatisticsRequest struct {
 
 type getStatisticsResponse struct {
 	BytesPerTok float32 `json:"bytes_per_tok"`
+}
+
+/*** Get thread completion ***/
+
+type getThreadCompletionRequest struct {
+	ClientId string                   `json:"client_id" validate:"required"`
+	Thread   client.Thread            `json:"thread"`
+	Params   adapter.CompletionParams `json:"params"`
+}
+
+type getThreadCompletionResponse struct {
+	client.ThreadCompletion
 }

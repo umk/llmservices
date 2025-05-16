@@ -3,8 +3,8 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/umk/llmservices.svg)](https://pkg.go.dev/github.com/umk/llmservices)
 
 A Go package and JSON-RPC service via Stdio for:
-- A brute-force approach for vector search
-- Uniform interface for LLM client interactions
+ - A brute-force approach for vector search
+ - Uniform interface for LLM client interactions
 
 The service uses newline character as a delimiter for JSON-RPC messages.
 
@@ -31,6 +31,7 @@ The service uses newline character as a delimiter for JSON-RPC messages.
 | Method | Description | Models |
 |--------|-------------|:--------:|
 | `setClient` | Configures and initializes a client with specified settings | [↗](internal/service/handlers/client/models.go) |
-| `getCompletion` | Retrieves AI model completions using the configured client | [↗](internal/service/handlers/client/models.go) [↗](pkg/adapter/completion.go) [↗](pkg/adapter/message.go) [↗](pkg/adapter/tool.go) [↗](pkg/adapter/content.go) |
+| `getCompletion` | Retrieves completion using the configured client | [↗](internal/service/handlers/client/models.go) [↗](pkg/adapter/completion.go) [↗](pkg/adapter/message.go) [↗](pkg/adapter/tool.go) [↗](pkg/adapter/content.go) |
+| `getThreadCompletion` | Retrieves completion for a thread using the configured client | [↗](internal/service/handlers/client/models.go) [↗](pkg/adapter/completion.go) [↗](pkg/adapter/message.go) [↗](pkg/adapter/tool.go) [↗](pkg/adapter/content.go) [↗](pkg/client/thread.go) [↗](pkg/client/thread_frame.go) |
 | `getEmbeddings` | Generates vector embeddings for input text using the configured client | [↗](internal/service/handlers/client/models.go) [↗](pkg/adapter/embeddings.go) |
 | `getStatistics` | Returns statistics about the client, including bytes per token | [↗](internal/service/handlers/client/models.go) |

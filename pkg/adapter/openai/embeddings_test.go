@@ -10,10 +10,10 @@ import (
 )
 
 func TestGetEmbeddingsRequest(t *testing.T) {
-	req := &adapter.EmbeddingsRequest{
+	input := "test input"
+	params := adapter.EmbeddingsParams{
 		Dimensions: pointer.Ptr(int64(128)),
 		Model:      "text-embedding-ada-002",
-		Input:      "test input",
 	}
 
 	expected := openai.EmbeddingNewParams{
@@ -24,7 +24,7 @@ func TestGetEmbeddingsRequest(t *testing.T) {
 		},
 	}
 
-	result := getEmbeddingsRequest(req)
+	result := getEmbeddingsParams(input, params)
 	assert.Equal(t, expected, result)
 }
 
@@ -40,7 +40,7 @@ func TestGetEmbeddingsResponse(t *testing.T) {
 		},
 	}
 
-	expected := adapter.EmbeddingsResponse{
+	expected := adapter.Embeddings{
 		Data: []float64{0.1, 0.2, 0.3},
 		Usage: &adapter.EmbeddingsUsage{
 			PromptTokens: 10,

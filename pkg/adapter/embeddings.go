@@ -1,12 +1,11 @@
 package adapter
 
-type EmbeddingsRequest struct {
-	Input      string `json:"input" validate:"required"`
+type EmbeddingsParams struct {
 	Model      string `json:"model" validate:"required"`
 	Dimensions *int64 `json:"dimensions,omitempty" validate:"omitempty,min=1"`
 }
 
-type EmbeddingsResponse struct {
+type Embeddings struct {
 	Data  []float64        `json:"data" validate:"required,min=1"`
 	Usage *EmbeddingsUsage `json:"usage,omitempty"`
 }

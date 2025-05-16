@@ -12,15 +12,15 @@ import (
 func TestGetCompletionRequest(t *testing.T) {
 	// Test with minimal required fields
 	t.Run("Basic Request", func(t *testing.T) {
-		req := &adapter.CompletionRequest{
-			Model: "gpt-4",
-			Messages: []adapter.Message{
+		params := getCompletionParams(
+			[]adapter.Message{
 				adapter.CreateSystemMessage("You are a helpful assistant"),
 				adapter.CreateUserMessage("Hello, world!"),
 			},
-		}
-
-		params := getCompletionRequest(req)
+			adapter.CompletionParams{
+				Model: "gpt-4",
+			},
+		)
 
 		assert.Equal(t, "gpt-4", params.Model)
 		assert.Len(t, params.Messages, 2)
@@ -40,11 +40,8 @@ func TestGetCompletionRequest(t *testing.T) {
 			OfResponseFormatText: &adapter.ResponseFormatText{},
 		}
 
-		req := &adapter.CompletionRequest{
-			Model: "gpt-4",
-			Messages: []adapter.Message{
-				adapter.CreateSystemMessage("You are a helpful assistant"),
-			},
+		params := adapter.CompletionParams{
+			Model:            "gpt-4",
 			FrequencyPenalty: &freqPenalty,
 			PresencePenalty:  &presPenalty,
 			Temperature:      &temp,
@@ -70,20 +67,25 @@ func TestGetCompletionRequest(t *testing.T) {
 			},
 		}
 
-		params := getCompletionRequest(req)
+		r := getCompletionParams(
+			[]adapter.Message{
+				adapter.CreateSystemMessage("You are a helpful assistant"),
+			},
+			params,
+		)
 
-		assert.Equal(t, "gpt-4", params.Model)
+		assert.Equal(t, "gpt-4", r.Model)
 		// Compare Opt values properly
-		assert.Equal(t, openai.Float(freqPenalty), params.FrequencyPenalty)
-		assert.Equal(t, openai.Float(presPenalty), params.PresencePenalty)
-		assert.Equal(t, openai.Float(temp), params.Temperature)
-		assert.Equal(t, openai.Float(topP), params.TopP)
-		assert.NotNil(t, params.ResponseFormat.OfText)
-		assert.Equal(t, []string{"STOP", "END"}, params.Stop.OfChatCompletionNewsStopArray)
-		assert.Len(t, params.Tools, 1)
-		assert.Equal(t, "getWeather", params.Tools[0].Function.Name)
-		assert.Equal(t, openai.String("Get the weather"), params.Tools[0].Function.Description)
-		assert.Equal(t, openai.Bool(strict), params.Tools[0].Function.Strict)
+		assert.Equal(t, openai.Float(freqPenalty), r.FrequencyPenalty)
+		assert.Equal(t, openai.Float(presPenalty), r.PresencePenalty)
+		assert.Equal(t, openai.Float(temp), r.Temperature)
+		assert.Equal(t, openai.Float(topP), r.TopP)
+		assert.NotNil(t, r.ResponseFormat.OfText)
+		assert.Equal(t, []string{"STOP", "END"}, r.Stop.OfChatCompletionNewsStopArray)
+		assert.Len(t, r.Tools, 1)
+		assert.Equal(t, "getWeather", r.Tools[0].Function.Name)
+		assert.Equal(t, openai.String("Get the weather"), r.Tools[0].Function.Description)
+		assert.Equal(t, openai.Bool(strict), r.Tools[0].Function.Strict)
 	})
 
 	t.Run("JSON Schema Response Format", func(t *testing.T) {
@@ -107,18 +109,18 @@ func TestGetCompletionRequest(t *testing.T) {
 			},
 		}
 
-		req := &adapter.CompletionRequest{
-			Model:          "gpt-4",
-			Messages:       []adapter.Message{adapter.CreateUserMessage("What's the weather?")},
-			ResponseFormat: responseFormat,
-		}
+		r := getCompletionParams(
+			[]adapter.Message{adapter.CreateUserMessage("What's the weather?")},
+			adapter.CompletionParams{
+				Model:          "gpt-4",
+				ResponseFormat: responseFormat,
+			},
+		)
 
-		params := getCompletionRequest(req)
-
-		assert.NotNil(t, params.ResponseFormat.OfJSONSchema)
-		assert.Equal(t, "WeatherResponse", params.ResponseFormat.OfJSONSchema.JSONSchema.Name)
-		assert.Equal(t, openai.String(description), params.ResponseFormat.OfJSONSchema.JSONSchema.Description)
-		assert.Equal(t, openai.Bool(strict), params.ResponseFormat.OfJSONSchema.JSONSchema.Strict)
+		assert.NotNil(t, r.ResponseFormat.OfJSONSchema)
+		assert.Equal(t, "WeatherResponse", r.ResponseFormat.OfJSONSchema.JSONSchema.Name)
+		assert.Equal(t, openai.String(description), r.ResponseFormat.OfJSONSchema.JSONSchema.Description)
+		assert.Equal(t, openai.Bool(strict), r.ResponseFormat.OfJSONSchema.JSONSchema.Strict)
 	})
 }
 

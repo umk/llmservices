@@ -3,6 +3,6 @@ package adapter
 import "context"
 
 type Adapter interface {
-	GetCompletion(ctx context.Context, req *CompletionRequest) (CompletionResponse, error)
-	GetEmbeddings(ctx context.Context, req *EmbeddingsRequest) (EmbeddingsResponse, error)
+	Completion(ctx context.Context, messages []Message, params CompletionParams) (Completion, error)
+	Embeddings(ctx context.Context, input string, params EmbeddingsParams) (Embeddings, error)
 }

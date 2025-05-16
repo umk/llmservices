@@ -1,7 +1,6 @@
 package adapter
 
-type CompletionRequest struct {
-	Messages         []Message       `json:"messages" validate:"required,min=1"`
+type CompletionParams struct {
 	Model            string          `json:"model" validate:"required"`
 	FrequencyPenalty *float64        `json:"frequency_penalty,omitempty" validate:"omitempty,gte=-2.0,lte=2.0"`
 	PresencePenalty  *float64        `json:"presence_penalty,omitempty" validate:"omitempty,gte=-2.0,lte=2.0"`
@@ -12,7 +11,7 @@ type CompletionRequest struct {
 	TopP             *float64        `json:"top_p,omitempty" validate:"omitempty,gte=0.0,lte=1.0"`
 }
 
-type CompletionResponse struct {
+type Completion struct {
 	Message AssistantMessage `json:"message" validate:"required"`
 	Usage   *CompletionUsage `json:"usage,omitempty"`
 }

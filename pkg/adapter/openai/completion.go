@@ -8,42 +8,42 @@ import (
 	"github.com/umk/llmservices/pkg/adapter"
 )
 
-func (c *Adapter) GetCompletion(ctx context.Context, req *adapter.CompletionRequest) (adapter.CompletionResponse, error) {
-	params := getCompletionRequest(req)
+func (c *Adapter) Completion(ctx context.Context, messages []adapter.Message, params adapter.CompletionParams) (adapter.Completion, error) {
+	p := getCompletionParams(messages, params)
 
-	resp, err := c.Client.Chat.Completions.New(ctx, params)
+	resp, err := c.Client.Chat.Completions.New(ctx, p)
 	if err != nil {
-		return adapter.CompletionResponse{}, err
+		return adapter.Completion{}, err
 	}
 
 	return getCompletionResponse(resp)
 }
 
-func getCompletionRequest(req *adapter.CompletionRequest) openai.ChatCompletionNewParams {
-	params := openai.ChatCompletionNewParams{
-		Model:            req.Model,
-		FrequencyPenalty: getOpt(req.FrequencyPenalty),
-		PresencePenalty:  getOpt(req.PresencePenalty),
-		ResponseFormat:   getResponseFormat(req.ResponseFormat),
+func getCompletionParams(messages []adapter.Message, params adapter.CompletionParams) openai.ChatCompletionNewParams {
+	r := openai.ChatCompletionNewParams{
+		Model:            params.Model,
+		FrequencyPenalty: getOpt(params.FrequencyPenalty),
+		PresencePenalty:  getOpt(params.PresencePenalty),
+		ResponseFormat:   getResponseFormat(params.ResponseFormat),
 		Stop: openai.ChatCompletionNewParamsStopUnion{
-			OfChatCompletionNewsStopArray: req.Stop,
+			OfChatCompletionNewsStopArray: params.Stop,
 		},
-		Temperature: getOpt(req.Temperature),
-		TopP:        getOpt(req.TopP),
+		Temperature: getOpt(params.Temperature),
+		TopP:        getOpt(params.TopP),
 	}
-	for _, message := range req.Messages {
-		params.Messages = append(params.Messages, getMessage(&message))
+	for _, message := range messages {
+		r.Messages = append(r.Messages, getMessage(&message))
 	}
-	for _, tool := range req.Tools {
-		params.Tools = append(params.Tools, getTool(&tool))
+	for _, tool := range params.Tools {
+		r.Tools = append(r.Tools, getTool(&tool))
 	}
 
-	return params
+	return r
 }
 
-func getCompletionResponse(resp *openai.ChatCompletion) (adapter.CompletionResponse, error) {
+func getCompletionResponse(resp *openai.ChatCompletion) (adapter.Completion, error) {
 	if len(resp.Choices) != 1 {
-		return adapter.CompletionResponse{}, fmt.Errorf("unexpected number of choices: %d", len(resp.Choices))
+		return adapter.Completion{}, fmt.Errorf("unexpected number of choices: %d", len(resp.Choices))
 	}
 
 	message := resp.Choices[0].Message
@@ -54,7 +54,7 @@ func getCompletionResponse(resp *openai.ChatCompletion) (adapter.CompletionRespo
 		content = &message.Content
 	}
 
-	result := adapter.CompletionResponse{
+	result := adapter.Completion{
 		Message: adapter.AssistantMessage{
 			Content: content,
 			Refusal: refusal,

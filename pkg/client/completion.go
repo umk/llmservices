@@ -6,15 +6,15 @@ import (
 	"github.com/umk/llmservices/pkg/adapter"
 )
 
-func (c *Client) GetCompletion(ctx context.Context, req *adapter.CompletionRequest) (
-	adapter.CompletionResponse, error,
+func (c *Client) Completion(ctx context.Context, messages []adapter.Message, params adapter.CompletionParams) (
+	adapter.Completion, error,
 ) {
 	if err := c.s.Acquire(ctx, 1); err != nil {
-		return adapter.CompletionResponse{}, err
+		return adapter.Completion{}, err
 	}
 	defer c.s.Release(1)
 
-	resp, err := c.adapter.GetCompletion(ctx, req)
+	resp, err := c.adapter.Completion(ctx, messages, params)
 
 	if err == nil {
 		c.setSamplesFromCompl(&resp)
@@ -23,7 +23,7 @@ func (c *Client) GetCompletion(ctx context.Context, req *adapter.CompletionReque
 	return resp, err
 }
 
-func (c *Client) setSamplesFromCompl(resp *adapter.CompletionResponse) {
+func (c *Client) setSamplesFromCompl(resp *adapter.Completion) {
 	toks := resp.Usage.CompletionTokens
 	if toks == 0 {
 		return
