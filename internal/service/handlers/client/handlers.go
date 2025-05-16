@@ -100,7 +100,7 @@ func GetThreadCompletion(ctx context.Context, c jsonrpc.RPCContext) (any, error)
 		return nil, errClientNotFound
 	}
 
-	resp, err := cl.ThreadCompletion(ctx, req.Thread, req.Params)
+	resp, err := cl.ThreadCompletion(ctx, &req.Thread, req.Params)
 	if err != nil {
 		return nil, newCompletionError(err)
 	}

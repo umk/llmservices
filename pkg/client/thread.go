@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"errors"
-	"slices"
 
 	"github.com/umk/llmservices/pkg/adapter"
 )
@@ -13,7 +12,8 @@ type Thread struct {
 }
 
 type ThreadCompletion struct {
-	Thread Thread                   `json:"thread" validate:"required"`
+	// The same thread passed to the request.
+	Thread *Thread                  `json:"thread" validate:"required"`
 	Usage  *adapter.CompletionUsage `json:"usage,omitempty"`
 }
 
@@ -46,12 +46,10 @@ func (t *Thread) Tokens(samples *Samples) int64 {
 	return toks + int64(float32(size)/b)
 }
 
-func (c *Client) ThreadCompletion(ctx context.Context, thread Thread, params adapter.CompletionParams) (ThreadCompletion, error) {
+func (c *Client) ThreadCompletion(ctx context.Context, thread *Thread, params adapter.CompletionParams) (ThreadCompletion, error) {
 	if len(thread.Frames) == 0 {
 		return ThreadCompletion{}, errors.New("thread must have at least one frame")
 	}
-
-	thread.Frames = slices.Clone(thread.Frames)
 
 	if err := c.s.Acquire(ctx, 1); err != nil {
 		return ThreadCompletion{}, err
@@ -79,7 +77,7 @@ func (c *Client) ThreadCompletion(ctx context.Context, thread Thread, params ada
 	f.CompletionTokens = resp.Usage.CompletionTokens
 
 	// Assign the token counts to frames after client stats have been updated.
-	setFrameTokens(&thread, c.Samples)
+	setFrameTokens(thread, c.Samples)
 
 	return ThreadCompletion{
 		Thread: thread,
