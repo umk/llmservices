@@ -2,6 +2,7 @@ package vectors
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/umk/llmservices/internal/jsonrpc"
@@ -21,7 +22,7 @@ func AddVector(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 		return nil, errDatabaseNotFound
 	}
 
-	r := db.Add(vectorsdb.Record[any]{
+	r := db.Add(vectorsdb.Record[json.RawMessage]{
 		Vector: req.Record.Vector,
 		Data:   req.Record.Data,
 	})
@@ -89,9 +90,9 @@ func AddVectorsBatch(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 		return nil, errDatabaseNotFound
 	}
 
-	records := make([]vectorsdb.Record[any], len(req.Records))
+	records := make([]vectorsdb.Record[json.RawMessage], len(req.Records))
 	for i, r := range req.Records {
-		records[i] = vectorsdb.Record[any]{
+		records[i] = vectorsdb.Record[json.RawMessage]{
 			Vector: r.Vector,
 			Data:   r.Data,
 		}

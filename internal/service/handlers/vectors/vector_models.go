@@ -1,6 +1,8 @@
 package vectors
 
 import (
+	"encoding/json"
+
 	"github.com/umk/llmservices/pkg/vectors"
 )
 
@@ -9,9 +11,9 @@ import (
 type addVectorRequest struct {
 	DatabaseId string `json:"database_id" validate:"required"`
 	Record     struct {
-		Id     vectors.ID     `json:"id" validate:"required"`
-		Vector vectors.Vector `json:"vector" validate:"require,min=1"`
-		Data   any            `json:"data"`
+		Id     vectors.ID      `json:"id" validate:"required"`
+		Vector vectors.Vector  `json:"vector" validate:"require,min=1"`
+		Data   json.RawMessage `json:"data"`
 	} `json:"record" validate:"required"`
 }
 
@@ -41,8 +43,8 @@ type searchVectorsResponse struct {
 }
 
 type searchVectorRecord struct {
-	Id   vectors.ID `json:"id" validate:"required"`
-	Data any        `json:"data"`
+	Id   vectors.ID      `json:"id" validate:"required"`
+	Data json.RawMessage `json:"data"`
 }
 
 /*** Add Vectors Batch ***/
@@ -50,9 +52,9 @@ type searchVectorRecord struct {
 type addVectorsBatchRequest struct {
 	DatabaseId string `json:"database_id" validate:"required"`
 	Records    []struct {
-		Id     vectors.ID     `json:"id" validate:"required"`
-		Vector vectors.Vector `json:"vector" validate:"required,min=1"`
-		Data   any            `json:"data"`
+		Id     vectors.ID      `json:"id" validate:"required"`
+		Vector vectors.Vector  `json:"vector" validate:"required,min=1"`
+		Data   json.RawMessage `json:"data"`
 	} `json:"records" validate:"required,min=1,dive"`
 }
 

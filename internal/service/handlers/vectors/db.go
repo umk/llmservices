@@ -2,6 +2,7 @@ package vectors
 
 import (
 	"context"
+	"encoding/json"
 	"sync"
 
 	"github.com/umk/llmservices/internal/config"
@@ -17,7 +18,7 @@ func CreateDatabase(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	db := vectorsdb.NewDatabase[any](
+	db := vectorsdb.NewDatabase[json.RawMessage](
 		req.VectorLength,
 		vectorsdb.WithRepackPercent(config.C.RepackPercent),
 	)
@@ -43,11 +44,11 @@ func DeleteDatabase(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func getDatabase(databaseId string) *vectorsdb.Database[any] {
+func getDatabase(databaseId string) *vectorsdb.Database[json.RawMessage] {
 	v, ok := databases.Load(databaseId)
 	if !ok {
 		return nil
 	}
 
-	return v.(*vectorsdb.Database[any])
+	return v.(*vectorsdb.Database[json.RawMessage])
 }
