@@ -3,6 +3,8 @@ package math
 import (
 	"math"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestVectorNorm(t *testing.T) {
@@ -37,9 +39,7 @@ func TestVectorNorm(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tmp := make([]float32, len(tt.vector))
 			got := float64(VectorNorm(tt.vector, tmp))
-			if math.Abs(got-tt.want) > 1e-6 {
-				t.Errorf("vectorNorm() = %v, want %v", got, tt.want)
-			}
+			assert.InDelta(t, tt.want, got, 1e-6, "Vector norm calculation failed")
 		})
 	}
 }

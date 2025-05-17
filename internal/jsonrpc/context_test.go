@@ -3,8 +3,10 @@ package jsonrpc
 import (
 	"encoding/json"
 	"errors"
-	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type person struct {
@@ -17,23 +19,15 @@ func TestRPCParseError(t *testing.T) {
 	parseErr := rpcParseError{err: baseErr}
 
 	// Test Error method
-	if parseErr.Error() != "failed to parse RPC request: test error" {
-		t.Errorf("Expected specific error message, got: %s", parseErr.Error())
-	}
+	assert.Equal(t, "failed to parse RPC request: test error", parseErr.Error())
 
 	// Test Unwrap method
-	if !errors.Is(parseErr, baseErr) {
-		t.Errorf("Expected parseErr to wrap baseErr, but it didn't")
-	}
+	assert.True(t, errors.Is(parseErr, baseErr), "Expected parseErr to wrap baseErr")
 
 	// Test RPCError method
 	rpcErr := parseErr.RPCError()
-	if rpcErr.Code != -32602 {
-		t.Errorf("Expected code -32602, got: %d", rpcErr.Code)
-	}
-	if rpcErr.Message != baseErr.Error() {
-		t.Errorf("Expected message to be base error message, got: %s", rpcErr.Message)
-	}
+	assert.Equal(t, -32602, rpcErr.Code)
+	assert.Equal(t, baseErr.Error(), rpcErr.Message)
 }
 
 func TestGetRequestBody_WithParams(t *testing.T) {
@@ -47,17 +41,10 @@ func TestGetRequestBody_WithParams(t *testing.T) {
 	var data person
 
 	err := ctx.GetRequestBody(&data)
-	if err != nil {
-		t.Fatalf("GetRequestBody failed: %v", err)
-	}
+	require.NoError(t, err)
 
-	if data.Name != "John" {
-		t.Errorf("Expected name 'John', got '%s'", data.Name)
-	}
-
-	if data.Age != 30 {
-		t.Errorf("Expected age 30, got %d", data.Age)
-	}
+	assert.Equal(t, "John", data.Name)
+	assert.Equal(t, 30, data.Age)
 }
 
 func TestGetRequestBody_InvalidJSON(t *testing.T) {
@@ -71,21 +58,15 @@ func TestGetRequestBody_InvalidJSON(t *testing.T) {
 	var data person
 
 	err := ctx.GetRequestBody(&data)
-	if err == nil {
-		t.Fatal("Expected error for invalid JSON, got nil")
-	}
+	assert.Error(t, err)
 
 	// Verify it's an rpcParseError
 	rpcParseErr, ok := err.(rpcParseError)
-	if !ok {
-		t.Errorf("Expected rpcParseError, got %T", err)
-	}
+	assert.True(t, ok, "Expected rpcParseError, got %T", err)
 
 	// Check if RPCError method works as expected
 	rpcErr := rpcParseErr.RPCError()
-	if rpcErr.Code != -32602 {
-		t.Errorf("Expected code -32602, got: %d", rpcErr.Code)
-	}
+	assert.Equal(t, -32602, rpcErr.Code)
 }
 
 func TestGetRequestBody_NoParams(t *testing.T) {
@@ -98,15 +79,11 @@ func TestGetRequestBody_NoParams(t *testing.T) {
 	var data person
 
 	err := ctx.GetRequestBody(&data)
-	if err == nil {
-		t.Fatal("Expected validation error for missing required field, got nil")
-	}
+	assert.Error(t, err)
 
 	// Verify it's an rpcParseError (due to validation)
 	_, ok := err.(rpcParseError)
-	if !ok {
-		t.Errorf("Expected rpcParseError, got %T", err)
-	}
+	assert.True(t, ok, "Expected rpcParseError, got %T", err)
 }
 
 func TestGetRequestBody_ValidationFailed(t *testing.T) {
@@ -120,20 +97,15 @@ func TestGetRequestBody_ValidationFailed(t *testing.T) {
 	var data person
 
 	err := ctx.GetRequestBody(&data)
-	if err == nil {
-		t.Fatal("Expected validation error, got nil")
-	}
+	assert.Error(t, err)
 
 	// Verify it's an rpcParseError (from validation)
 	rpcParseErr, ok := err.(rpcParseError)
-	if !ok {
-		t.Errorf("Expected rpcParseError, got %T", err)
-	}
+	assert.True(t, ok, "Expected rpcParseError, got %T", err)
 
 	// Check error message contains validation info
-	if rpcErr := rpcParseErr.RPCError(); !strings.Contains(rpcErr.Message, "required") {
-		t.Errorf("Expected validation error to mention 'required' field, got: %s", rpcErr.Message)
-	}
+	rpcErr := rpcParseErr.RPCError()
+	assert.Contains(t, rpcErr.Message, "required")
 }
 
 func TestGetRequestBody_NegativeAgeValidationFailed(t *testing.T) {
@@ -147,20 +119,15 @@ func TestGetRequestBody_NegativeAgeValidationFailed(t *testing.T) {
 	var data person
 
 	err := ctx.GetRequestBody(&data)
-	if err == nil {
-		t.Fatal("Expected validation error, got nil")
-	}
+	assert.Error(t, err)
 
 	// Verify it's an rpcParseError (from validation)
 	rpcParseErr, ok := err.(rpcParseError)
-	if !ok {
-		t.Errorf("Expected rpcParseError, got %T", err)
-	}
+	assert.True(t, ok, "Expected rpcParseError, got %T", err)
 
 	// Check error message contains validation info
-	if rpcErr := rpcParseErr.RPCError(); !strings.Contains(rpcErr.Message, "gte") {
-		t.Errorf("Expected validation error to mention 'gte', got: %s", rpcErr.Message)
-	}
+	rpcErr := rpcParseErr.RPCError()
+	assert.Contains(t, rpcErr.Message, "gte")
 }
 
 func TestGetResponse_Valid(t *testing.T) {
@@ -171,19 +138,13 @@ func TestGetResponse_Valid(t *testing.T) {
 	}
 
 	result, err := ctx.GetResponse(response)
-	if err != nil {
-		t.Fatalf("GetResponse failed: %v", err)
-	}
+	require.NoError(t, err)
 
 	// Check response is returned as-is
 	typedResult, ok := result.(person)
-	if !ok {
-		t.Fatalf("Expected result of type testStruct, got %T", result)
-	}
-
-	if typedResult.Name != "John" || typedResult.Age != 30 {
-		t.Errorf("Response data doesn't match input")
-	}
+	assert.True(t, ok, "Expected result of type person, got %T", result)
+	assert.Equal(t, "John", typedResult.Name)
+	assert.Equal(t, 30, typedResult.Age)
 }
 
 func TestGetResponse_Invalid(t *testing.T) {
@@ -194,15 +155,7 @@ func TestGetResponse_Invalid(t *testing.T) {
 	}
 
 	result, err := ctx.GetResponse(response)
-	if err == nil {
-		t.Fatal("Expected validation error, got nil")
-	}
-
-	if result != nil {
-		t.Errorf("Expected nil result, got %v", result)
-	}
-
-	if err.Error() != "invalid response from server" {
-		t.Errorf("Unexpected error message: %s", err.Error())
-	}
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, "invalid response from server", err.Error())
 }

@@ -1,43 +1,39 @@
 package slices
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestSlicePool_GetAndPut(t *testing.T) {
 	pool := NewSlicePool[int](5)
 
 	// Get a slice of size 3
 	slice := pool.Get(3)
-	if len(*slice) != 3 {
-		t.Errorf("expected length 3, got %d", len(*slice))
-	}
-	if cap(*slice) != 5 {
-		t.Errorf("expected cap 5, got %d", cap(*slice))
-	}
+	assert.Equal(t, 3, len(*slice), "slice length should match requested size")
+	assert.Equal(t, 5, cap(*slice), "slice capacity should match pool size")
 
 	// Put the slice back
 	pool.Put(slice)
 
 	// Get again, should reuse the pooled slice
 	slice2 := pool.Get(2)
-	if len(*slice2) != 2 {
-		t.Errorf("expected length 2, got %d", len(*slice2))
-	}
-	if cap(*slice2) != 5 {
-		t.Errorf("expected cap 5, got %d", cap(*slice2))
-	}
+	assert.Equal(t, 2, len(*slice2), "reused slice length should match requested size")
+	assert.Equal(t, 5, cap(*slice2), "reused slice capacity should match pool size")
 
 	// Get a slice larger than pool size
 	bigSlice := pool.Get(10)
-	if len(*bigSlice) != 10 {
-		t.Errorf("expected length 10, got %d", len(*bigSlice))
-	}
-	if cap(*bigSlice) != 10 {
-		t.Errorf("expected cap 10, got %d", cap(*bigSlice))
-	}
+	assert.Equal(t, 10, len(*bigSlice), "oversized slice length should match requested size")
+	assert.Equal(t, 10, cap(*bigSlice), "oversized slice capacity should match requested size")
 }
 
 func TestSlicePool_PutNonPooledSize(t *testing.T) {
 	pool := NewSlicePool[int](4)
 	s := make([]int, 0, 6)
-	pool.Put(&s) // Should not panic or add to pool
+
+	// Should not panic or add to pool
+	assert.NotPanics(t, func() {
+		pool.Put(&s)
+	}, "putting non-pooled size slice should not panic")
 }

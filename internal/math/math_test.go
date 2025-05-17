@@ -3,6 +3,8 @@ package math
 import (
 	"math"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCosineSimilarity(t *testing.T) {
@@ -49,9 +51,7 @@ func TestCosineSimilarity(t *testing.T) {
 
 			got := CosineSimilarity(tt.a, tt.b, normA, normB, tmp)
 
-			if math.Abs(got-tt.want) > 1e-6 {
-				t.Errorf("cosineSimilarity() = %v, want %v", got, tt.want)
-			}
+			assert.InDelta(t, tt.want, got, 1e-6, "CosineSimilarity calculation mismatch")
 		})
 	}
 }

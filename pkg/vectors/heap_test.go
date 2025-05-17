@@ -3,6 +3,7 @@ package vectors
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/umk/llmservices/internal/slices"
 )
 
@@ -13,9 +14,7 @@ func TestMinDistanceHeap_Order(t *testing.T) {
 	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 2}, similarity: 0.8})
 	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 3}, similarity: 0.5})
 
-	if len(h) != 3 {
-		t.Fatalf("expected heap size 3, got %d", len(h))
-	}
+	assert.Len(t, h, 3, "heap should have size 3")
 
 	// The min should be the lowest similarity
 	min := h[0]
@@ -24,9 +23,7 @@ func TestMinDistanceHeap_Order(t *testing.T) {
 			min = item
 		}
 	}
-	if min.similarity != 0.2 {
-		t.Errorf("expected highest similarity at root, got %v", min.similarity)
-	}
+	assert.Equal(t, 0.2, min.similarity, "expected lowest similarity at root")
 }
 
 func TestMinDistanceHeap_Capacity(t *testing.T) {
@@ -36,26 +33,19 @@ func TestMinDistanceHeap_Capacity(t *testing.T) {
 	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 2}, similarity: 0.2})
 	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 3}, similarity: 0.3}) // Should replace the lowest
 
-	if len(h) != 2 {
-		t.Fatalf("expected heap size 2, got %d", len(h))
-	}
+	assert.Len(t, h, 2, "heap should have size 2")
 
 	found := map[ID]bool{}
 	for _, item := range h {
 		found[item.record.id] = true
 	}
-	if !found[2] || !found[3] {
-		t.Errorf("expected heap to contain IDs 2 and 3, got %+v", found)
-	}
+	assert.True(t, found[2], "heap should contain ID 2")
+	assert.True(t, found[3], "heap should contain ID 3")
 }
 
 func TestMinDistanceHeapItem_Less(t *testing.T) {
 	a := &minDistanceHeapItem{similarity: 0.7}
 	b := &minDistanceHeapItem{similarity: 0.5}
-	if a.Less(b) {
-		t.Errorf("expected a.Less(b) to be true when a.similarity < b.similarity")
-	}
-	if !b.Less(a) {
-		t.Errorf("expected b.Less(a) to be false when b.similarity > a.similarity")
-	}
+	assert.False(t, a.Less(b), "expected a.Less(b) to be false when a.similarity > b.similarity")
+	assert.True(t, b.Less(a), "expected b.Less(a) to be true when b.similarity < a.similarity")
 }

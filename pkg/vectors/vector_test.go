@@ -2,35 +2,21 @@ package vectors
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewVectors(t *testing.T) {
 	chunkSize := 128
 	v := NewVectors(chunkSize)
 
-	if v == nil {
-		t.Fatal("NewVectors returned nil")
-	}
-
-	if v.chunkSize != chunkSize {
-		t.Errorf("expected chunkSize %d, got %d", chunkSize, v.chunkSize)
-	}
-
-	if len(v.chunks) != 1 {
-		t.Errorf("expected 1 chunk initially, got %d", len(v.chunks))
-	}
-
-	if v.currentChunk == nil {
-		t.Error("currentChunk is nil")
-	}
-
-	if v.currentChunk.baseId != 0 {
-		t.Errorf("expected baseId 0, got %d", v.currentChunk.baseId)
-	}
-
-	if cap(v.currentChunk.records) != chunkSize {
-		t.Errorf("expected records capacity %d, got %d", chunkSize, cap(v.currentChunk.records))
-	}
+	require.NotNil(t, v, "NewVectors returned nil")
+	assert.Equal(t, chunkSize, v.chunkSize, "incorrect chunkSize")
+	assert.Len(t, v.chunks, 1, "expected 1 chunk initially")
+	require.NotNil(t, v.currentChunk, "currentChunk is nil")
+	assert.Equal(t, ID(0), v.currentChunk.baseId, "incorrect baseId")
+	assert.Equal(t, chunkSize, cap(v.currentChunk.records), "incorrect records capacity")
 }
 
 func TestVectors_Add(t *testing.T) {
@@ -40,43 +26,29 @@ func TestVectors_Add(t *testing.T) {
 	// Add first vector
 	vec1 := Vector{1.0, 2.0, 3.0}
 	id1 := v.Add(vec1)
-	if id1 != 0 {
-		t.Errorf("expected first ID to be 0, got %d", id1)
-	}
+	assert.Equal(t, ID(0), id1, "expected first ID to be 0")
 
 	// Add second vector (still fits in first chunk)
 	vec2 := Vector{4.0, 5.0, 6.0}
 	id2 := v.Add(vec2)
-	if id2 != 1 {
-		t.Errorf("expected second ID to be 1, got %d", id2)
-	}
+	assert.Equal(t, ID(1), id2, "expected second ID to be 1")
 
 	// Add third vector (should create a new chunk)
 	vec3 := Vector{7.0, 8.0, 9.0}
 	id3 := v.Add(vec3)
-	if id3 != 2 {
-		t.Errorf("expected third ID to be 2, got %d", id3)
-	}
+	assert.Equal(t, ID(2), id3, "expected third ID to be 2")
 
 	// Check that we now have 2 chunks
-	if len(v.chunks) != 2 {
-		t.Errorf("expected 2 chunks after adding 3 vectors, got %d", len(v.chunks))
-	}
+	assert.Len(t, v.chunks, 2, "expected 2 chunks after adding 3 vectors")
 
 	// First chunk should be full
-	if len(v.chunks[0].records) != chunkSize {
-		t.Errorf("expected first chunk to have %d records, got %d", chunkSize, len(v.chunks[0].records))
-	}
+	assert.Len(t, v.chunks[0].records, chunkSize, "unexpected number of records in first chunk")
 
 	// Second chunk should have 1 record
-	if len(v.chunks[1].records) != 1 {
-		t.Errorf("expected second chunk to have 1 record, got %d", len(v.chunks[1].records))
-	}
+	assert.Len(t, v.chunks[1].records, 1, "expected second chunk to have 1 record")
 
 	// Check that the current chunk is the second chunk
-	if v.currentChunk != v.chunks[1] {
-		t.Error("expected currentChunk to be the second chunk")
-	}
+	assert.Equal(t, v.chunks[1], v.currentChunk, "currentChunk should be the second chunk")
 }
 
 func TestVectors_Delete(t *testing.T) {
@@ -92,24 +64,18 @@ func TestVectors_Delete(t *testing.T) {
 	id3 := v.Add(vec3)
 
 	// Check that the IDs are sequential
-	if id1 != 0 || id2 != 1 || id3 != 2 {
-		t.Errorf("Expected sequential IDs 0,1,2, got %d,%d,%d", id1, id2, id3)
-	}
+	assert.Equal(t, ID(0), id1, "Expected ID 0")
+	assert.Equal(t, ID(1), id2, "Expected ID 1")
+	assert.Equal(t, ID(2), id3, "Expected ID 2")
 
 	// Test deleting an existing vector
-	if !v.Delete(id2) {
-		t.Errorf("Delete(%d) returned false, expected true", id2)
-	}
+	assert.True(t, v.Delete(id2), "Delete(%d) should return true", id2)
 
 	// Try to delete the same vector again (should fail)
-	if v.Delete(id2) {
-		t.Errorf("Delete(%d) returned true when trying to delete already deleted vector", id2)
-	}
+	assert.False(t, v.Delete(id2), "Delete(%d) should return false when deleting already deleted vector", id2)
 
 	// Delete non-existent vector
-	if v.Delete(ID(99)) {
-		t.Errorf("Delete(99) returned true for non-existent vector")
-	}
+	assert.False(t, v.Delete(ID(99)), "Delete(99) should return false for non-existent vector")
 }
 
 func TestVectors_Get(t *testing.T) {
@@ -125,14 +91,7 @@ func TestVectors_Get(t *testing.T) {
 	query := Vector{1, 1, 0}
 	results := v.Get([]Vector{query}, 4) // Get all 4 vectors
 
-	if len(results) != 4 {
-		t.Fatalf("expected 4 results, got %d", len(results))
-	}
-
-	// Since similarity is cosine similarity, we can calculate expected results:
-	// Similarity between [1,1,0] and [0.7,0.7,0] should be highest
-	// Then [1,0,0] and [0,1,0] should be equal
-	// [0,0,1] should be lowest (orthogonal)
+	assert.Len(t, results, 4, "expected 4 results")
 
 	// Convert results to a map to check containment regardless of order
 	resultMap := make(map[ID]bool)
@@ -141,9 +100,8 @@ func TestVectors_Get(t *testing.T) {
 	}
 
 	// Verify all vectors are returned
-	if !resultMap[id0] || !resultMap[id1] || !resultMap[id2] || !resultMap[id3] {
-		t.Errorf("Not all expected vectors were returned: %v", results)
-	}
+	assert.True(t, resultMap[id0] && resultMap[id1] && resultMap[id2] && resultMap[id3],
+		"Not all expected vectors were returned: %v", results)
 }
 
 func TestVectors_Compact(t *testing.T) {
@@ -168,14 +126,8 @@ func TestVectors_Compact(t *testing.T) {
 	// Perform compact
 	v.Compact()
 
-	if len(v.chunks) != 1 {
-		t.Errorf("expected 1 chunk after compact, got %d", len(v.chunks))
-	}
-
-	// Check that the new Vectors has the same chunkSize
-	if v.chunkSize != 3 {
-		t.Errorf("expected compacted Vectors to have chunkSize %d, got %d", v.chunkSize, v.chunkSize)
-	}
+	assert.Len(t, v.chunks, 1, "expected 1 chunk after compact")
+	assert.Equal(t, 3, v.chunkSize, "expected compacted Vectors to maintain original chunkSize")
 
 	// Create queries using the original vectors we added (excluding the deleted one)
 	remainingVecs := []struct {
@@ -189,13 +141,9 @@ func TestVectors_Compact(t *testing.T) {
 
 	for _, rv := range remainingVecs {
 		results := v.Get([]Vector{rv.query}, 1)
-		if len(results) != 1 {
-			t.Fatalf("Expected 1 result for vector %v, got %d results", rv.query, len(results))
-			continue
-		}
-
-		if results[0] != rv.id {
-			t.Fatalf("Expected ID %d for vector %v, got %d", rv.id, rv.query, results[0])
+		assert.Len(t, results, 1, "Expected 1 result for vector %v", rv.query)
+		if len(results) > 0 {
+			assert.Equal(t, rv.id, results[0], "Expected ID %d for vector %v", rv.id, rv.query)
 		}
 	}
 }
@@ -222,14 +170,8 @@ func TestVectors_Repack(t *testing.T) {
 	// Perform repack
 	newVectors := v.Repack()
 
-	if len(newVectors.chunks) != 1 {
-		t.Errorf("expected 1 chunk after repack, got %d", len(newVectors.chunks))
-	}
-
-	// Check that the new Vectors has the same chunkSize
-	if newVectors.chunkSize != v.chunkSize {
-		t.Errorf("expected repacked Vectors to have chunkSize %d, got %d", v.chunkSize, newVectors.chunkSize)
-	}
+	assert.Len(t, newVectors.chunks, 1, "expected 1 chunk after repack")
+	assert.Equal(t, v.chunkSize, newVectors.chunkSize, "expected repacked Vectors to have same chunkSize")
 
 	// Create queries using the original vectors we added (excluding the deleted one)
 	remainingVecs := []struct {
@@ -243,13 +185,9 @@ func TestVectors_Repack(t *testing.T) {
 
 	for _, rv := range remainingVecs {
 		results := newVectors.Get([]Vector{rv.query}, 1)
-		if len(results) != 1 {
-			t.Fatalf("Expected 1 result for vector %v, got %d results", rv.query, len(results))
-			continue
-		}
-
-		if results[0] != rv.id {
-			t.Fatalf("Expected ID %d for vector %v, got %d", rv.id, rv.query, results[0])
+		assert.Len(t, results, 1, "Expected 1 result for vector %v", rv.query)
+		if len(results) > 0 {
+			assert.Equal(t, rv.id, results[0], "Expected ID %d for vector %v", rv.id, rv.query)
 		}
 	}
 }
@@ -270,31 +208,24 @@ func TestVectors_DeleteAndQuery(t *testing.T) {
 	query := Vector{1.0, 1.0, 1.0} // diagonal vector equally distant from all test vectors
 	results := v.Get([]Vector{query}, 3)
 
-	if len(results) != 3 {
-		t.Fatalf("Expected 3 vectors initially, got %d", len(results))
-	}
+	assert.Len(t, results, 3, "Expected 3 vectors initially")
 
 	// Check that all IDs are present
 	resultMap := make(map[ID]bool)
 	for _, id := range results {
 		resultMap[id] = true
 	}
-	if !resultMap[id1] || !resultMap[id2] || !resultMap[id3] {
-		t.Errorf("Not all expected vectors were returned before deletion: %v", results)
-	}
+	assert.True(t, resultMap[id1] && resultMap[id2] && resultMap[id3],
+		"Not all expected vectors were returned before deletion: %v", results)
 
 	// Delete the second vector
-	if !v.Delete(id2) {
-		t.Fatalf("Failed to delete vector with ID %d", id2)
-	}
+	assert.True(t, v.Delete(id2), "Failed to delete vector with ID %d", id2)
 
 	// Query again
 	results = v.Get([]Vector{query}, 3)
 
 	// Should have only 2 results now
-	if len(results) != 2 {
-		t.Fatalf("Expected 2 vectors after deletion, got %d", len(results))
-	}
+	assert.Len(t, results, 2, "Expected 2 vectors after deletion")
 
 	// The results should contain id1 and id3, but not id2
 	resultMap = make(map[ID]bool)
@@ -302,11 +233,8 @@ func TestVectors_DeleteAndQuery(t *testing.T) {
 		resultMap[id] = true
 	}
 
-	if !resultMap[id1] || !resultMap[id3] {
-		t.Errorf("Missing expected vectors after deletion: %v", results)
-	}
-
-	if resultMap[id2] {
-		t.Errorf("Deleted vector with ID %d was still returned in query", id2)
-	}
+	assert.True(t, resultMap[id1] && resultMap[id3],
+		"Missing expected vectors after deletion: %v", results)
+	assert.False(t, resultMap[id2],
+		"Deleted vector with ID %d was still returned in query", id2)
 }

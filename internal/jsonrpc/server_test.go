@@ -10,6 +10,9 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // mockReader simulates various reader behaviors for testing
@@ -47,18 +50,9 @@ func TestNewServer(t *testing.T) {
 		handler := NewHandler(nil)
 		server := NewServer(handler)
 
-		if server == nil {
-			t.Fatal("Expected non-nil server")
-		}
-
-		if server.handler != handler {
-			t.Error("Handler not correctly set")
-		}
-
-		// Default request size is 4K
-		if server.bufferPool == nil {
-			t.Error("Buffer pool not initialized")
-		}
+		require.NotNil(t, server, "Expected non-nil server")
+		assert.Equal(t, handler, server.handler, "Handler not correctly set")
+		assert.NotNil(t, server.bufferPool, "Buffer pool not initialized")
 	})
 
 	t.Run("WithCustomOptions", func(t *testing.T) {
@@ -66,13 +60,8 @@ func TestNewServer(t *testing.T) {
 		customSize := 8192
 		server := NewServer(handler, WithRequestSize(customSize))
 
-		if server == nil {
-			t.Fatal("Expected non-nil server")
-		}
-
-		if server.handler != handler {
-			t.Error("Handler not correctly set")
-		}
+		require.NotNil(t, server, "Expected non-nil server")
+		assert.Equal(t, handler, server.handler, "Handler not correctly set")
 	})
 }
 
@@ -97,24 +86,18 @@ func TestServer_Run(t *testing.T) {
 
 		err := server.Run(ctx, input, &output)
 		// After timeout, we should get a context canceled error or nil
-		if err != nil && err != context.DeadlineExceeded {
-			t.Errorf("Server.Run() unexpected error = %v", err)
+		if err != nil {
+			assert.Equal(t, context.DeadlineExceeded, err, "Server.Run() unexpected error")
 		}
 
 		// Check that we got a valid response
 		outputStr := output.String()
 		var resp rpcResponse
-		if err := json.Unmarshal([]byte(strings.TrimSuffix(outputStr, "\n")), &resp); err != nil {
-			t.Errorf("Failed to parse response: %v", err)
-		}
+		err = json.Unmarshal([]byte(strings.TrimSuffix(outputStr, "\n")), &resp)
+		assert.NoError(t, err, "Failed to parse response")
 
-		if resp.Error != nil {
-			t.Errorf("Got error response: %v", resp.Error)
-		}
-
-		if resp.Result != "success" {
-			t.Errorf("Expected result 'success', got %v", resp.Result)
-		}
+		assert.Nil(t, resp.Error, "Got error response")
+		assert.Equal(t, "success", resp.Result, "Expected result 'success'")
 	})
 
 	t.Run("ProcessMultipleRequests", func(t *testing.T) {
@@ -141,19 +124,16 @@ func TestServer_Run(t *testing.T) {
 
 		err := server.Run(ctx, input, &output)
 		// After timeout, we should get a context canceled error or nil
-		if err != nil && err != context.DeadlineExceeded {
-			t.Errorf("Server.Run() unexpected error = %v", err)
+		if err != nil {
+			assert.Equal(t, context.DeadlineExceeded, err, "Server.Run() unexpected error")
 		}
 
 		// Check we got both responses (order may vary due to concurrency)
 		outputStr := output.String()
-		if !strings.Contains(outputStr, `"result":"result1"`) || !strings.Contains(outputStr, `"result":"result2"`) {
-			t.Errorf("Expected both results. Got: %s", outputStr)
-		}
-
-		if !strings.Contains(outputStr, `"id":1`) || !strings.Contains(outputStr, `"id":2`) {
-			t.Errorf("Expected both IDs. Got: %s", outputStr)
-		}
+		assert.Contains(t, outputStr, `"result":"result1"`, "Expected result1 in output")
+		assert.Contains(t, outputStr, `"result":"result2"`, "Expected result2 in output")
+		assert.Contains(t, outputStr, `"id":1`, "Expected id:1 in output")
+		assert.Contains(t, outputStr, `"id":2`, "Expected id:2 in output")
 	})
 
 	t.Run("HandleReaderError", func(t *testing.T) {
@@ -167,9 +147,7 @@ func TestServer_Run(t *testing.T) {
 		var output bytes.Buffer
 
 		err := server.Run(context.Background(), mockReader, &output)
-		if err != io.ErrUnexpectedEOF {
-			t.Errorf("Expected io.ErrUnexpectedEOF, got %v", err)
-		}
+		assert.Equal(t, io.ErrUnexpectedEOF, err, "Expected io.ErrUnexpectedEOF")
 	})
 
 	t.Run("HandleEOF", func(t *testing.T) {
@@ -182,9 +160,7 @@ func TestServer_Run(t *testing.T) {
 		var output bytes.Buffer
 
 		err := server.Run(context.Background(), mockReader, &output)
-		if err != nil {
-			t.Errorf("Expected no error on EOF, got %v", err)
-		}
+		assert.NoError(t, err, "Expected no error on EOF")
 	})
 
 	t.Run("HandleNullResponse", func(t *testing.T) {
@@ -208,14 +184,12 @@ func TestServer_Run(t *testing.T) {
 
 		err := server.Run(ctx, input, &output)
 		// After timeout, we should get a context canceled error or nil
-		if err != nil && err != context.DeadlineExceeded {
-			t.Errorf("Server.Run() unexpected error = %v", err)
+		if err != nil {
+			assert.Equal(t, context.DeadlineExceeded, err, "Server.Run() unexpected error")
 		}
 
 		// Should have no output for a notification request
-		if output.Len() > 0 {
-			t.Errorf("Expected empty output for notification, got: %s", output.String())
-		}
+		assert.Equal(t, 0, output.Len(), "Expected empty output for notification")
 	})
 
 	t.Run("HandleHandlerError", func(t *testing.T) {
@@ -238,15 +212,13 @@ func TestServer_Run(t *testing.T) {
 
 		err := server.Run(ctx, input, &output)
 		// After timeout, we should get a context canceled error or nil
-		if err != nil && err != context.DeadlineExceeded {
-			t.Errorf("Server.Run() unexpected error = %v", err)
+		if err != nil {
+			assert.Equal(t, context.DeadlineExceeded, err, "Server.Run() unexpected error")
 		}
 
 		// Should get an error response
 		outputStr := output.String()
-		if !strings.Contains(outputStr, `"error"`) {
-			t.Errorf("Expected error in response, got: %s", outputStr)
-		}
+		assert.Contains(t, outputStr, `"error"`, "Expected error in response")
 	})
 }
 
@@ -258,13 +230,8 @@ func TestReadInput(t *testing.T) {
 		data := make([]byte, 0, 64)
 		err := readInput(reader, &data)
 
-		if err != nil {
-			t.Errorf("readInput() error = %v", err)
-		}
-
-		if string(data) != "test input" {
-			t.Errorf("readInput() = %q, want %q", string(data), "test input")
-		}
+		assert.NoError(t, err, "readInput() error")
+		assert.Equal(t, "test input", string(data), "readInput() incorrect data")
 	})
 
 	t.Run("MultiLine", func(t *testing.T) {
@@ -275,25 +242,15 @@ func TestReadInput(t *testing.T) {
 		data := make([]byte, 0, 64)
 		err := readInput(reader, &data)
 
-		if err != nil {
-			t.Errorf("readInput() error = %v", err)
-		}
-
-		if string(data) != "line 1" {
-			t.Errorf("readInput() = %q, want %q", string(data), "line 1")
-		}
+		assert.NoError(t, err, "readInput() first call error")
+		assert.Equal(t, "line 1", string(data), "readInput() first line incorrect")
 
 		// Second call should read "line 2"
 		data = data[:0]
 		err = readInput(reader, &data)
 
-		if err != nil {
-			t.Errorf("readInput() error = %v", err)
-		}
-
-		if string(data) != "line 2" {
-			t.Errorf("readInput() = %q, want %q", string(data), "line 2")
-		}
+		assert.NoError(t, err, "readInput() second call error")
+		assert.Equal(t, "line 2", string(data), "readInput() second line incorrect")
 	})
 
 	t.Run("LongLine", func(t *testing.T) {
@@ -304,13 +261,8 @@ func TestReadInput(t *testing.T) {
 		data := make([]byte, 0, 64)
 		err := readInput(reader, &data)
 
-		if err != nil {
-			t.Errorf("readInput() error = %v", err)
-		}
-
-		if len(data) != 8192 {
-			t.Errorf("readInput() len = %d, want %d", len(data), 8192)
-		}
+		assert.NoError(t, err, "readInput() error")
+		assert.Equal(t, 8192, len(data), "readInput() incorrect length")
 	})
 
 	t.Run("Error", func(t *testing.T) {
@@ -323,9 +275,7 @@ func TestReadInput(t *testing.T) {
 		data := make([]byte, 0, 64)
 		err := readInput(reader, &data)
 
-		if err != io.ErrUnexpectedEOF {
-			t.Errorf("Expected io.ErrUnexpectedEOF, got %v", err)
-		}
+		assert.Equal(t, io.ErrUnexpectedEOF, err, "Expected io.ErrUnexpectedEOF")
 	})
 
 	t.Run("NoNewline", func(t *testing.T) {
@@ -336,12 +286,7 @@ func TestReadInput(t *testing.T) {
 		data := make([]byte, 0, 64)
 		err := readInput(reader, &data)
 
-		if err != nil {
-			t.Errorf("readInput() error = %v", err)
-		}
-
-		if string(data) != "input without newline" {
-			t.Errorf("readInput() = %q, want %q", string(data), "input without newline")
-		}
+		assert.NoError(t, err, "readInput() error")
+		assert.Equal(t, "input without newline", string(data), "readInput() incorrect data")
 	})
 }

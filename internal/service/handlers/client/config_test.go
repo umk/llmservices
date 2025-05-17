@@ -3,6 +3,8 @@ package client
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/umk/llmservices/internal/pointer"
 	"github.com/umk/llmservices/pkg/client"
 )
@@ -114,36 +116,17 @@ func TestGetClientConfig(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := getClientConfig(tt.input)
 
-			// Check error status
-			if (err != nil) != tt.expectErr {
-				t.Errorf("getClientConfig() error = %v, expectErr %v", err, tt.expectErr)
-				return
-			}
-
 			if tt.expectErr {
+				require.Error(t, err)
 				return
 			}
 
-			// Check returned config matches expected
-			if got.Preset != tt.expected.Preset {
-				t.Errorf("Preset = %v, want %v", got.Preset, tt.expected.Preset)
-			}
-
-			if got.BaseURL != tt.expected.BaseURL {
-				t.Errorf("BaseURL = %v, want %v", got.BaseURL, tt.expected.BaseURL)
-			}
-
-			if got.Key != tt.expected.Key {
-				t.Errorf("Key = %v, want %v", got.Key, tt.expected.Key)
-			}
-
-			if got.Model != tt.expected.Model {
-				t.Errorf("Model = %v, want %v", got.Model, tt.expected.Model)
-			}
-
-			if got.Concurrency != tt.expected.Concurrency {
-				t.Errorf("Concurrency = %v, want %v", got.Concurrency, tt.expected.Concurrency)
-			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.expected.Preset, got.Preset, "Preset mismatch")
+			assert.Equal(t, tt.expected.BaseURL, got.BaseURL, "BaseURL mismatch")
+			assert.Equal(t, tt.expected.Key, got.Key, "Key mismatch")
+			assert.Equal(t, tt.expected.Model, got.Model, "Model mismatch")
+			assert.Equal(t, tt.expected.Concurrency, got.Concurrency, "Concurrency mismatch")
 		})
 	}
 }
@@ -267,32 +250,13 @@ func TestSetConfig(t *testing.T) {
 			err := setConfig(&dest, tt.src)
 
 			// setConfig should always succeed as currently implemented
-			if err != nil {
-				t.Errorf("setConfig() error = %v", err)
-				return
-			}
+			require.NoError(t, err)
 
-			// Check if fields were correctly updated
-			if dest.BaseURL != tt.expected.BaseURL {
-				t.Errorf("BaseURL = %v, want %v", dest.BaseURL, tt.expected.BaseURL)
-			}
-
-			if dest.Key != tt.expected.Key {
-				t.Errorf("Key = %v, want %v", dest.Key, tt.expected.Key)
-			}
-
-			if dest.Model != tt.expected.Model {
-				t.Errorf("Model = %v, want %v", dest.Model, tt.expected.Model)
-			}
-
-			if dest.Concurrency != tt.expected.Concurrency {
-				t.Errorf("Concurrency = %v, want %v", dest.Concurrency, tt.expected.Concurrency)
-			}
-
-			// Preset should never change in setConfig
-			if dest.Preset != tt.expected.Preset {
-				t.Errorf("Preset was modified: got %v, want %v", dest.Preset, tt.expected.Preset)
-			}
+			assert.Equal(t, tt.expected.BaseURL, dest.BaseURL, "BaseURL mismatch")
+			assert.Equal(t, tt.expected.Key, dest.Key, "Key mismatch")
+			assert.Equal(t, tt.expected.Model, dest.Model, "Model mismatch")
+			assert.Equal(t, tt.expected.Concurrency, dest.Concurrency, "Concurrency mismatch")
+			assert.Equal(t, tt.expected.Preset, dest.Preset, "Preset should never change")
 		})
 	}
 }

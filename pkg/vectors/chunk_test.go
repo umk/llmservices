@@ -3,6 +3,8 @@ package vectors
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	mathutil "github.com/umk/llmservices/internal/math"
 )
 
@@ -11,15 +13,9 @@ func TestNewChunk(t *testing.T) {
 	chunkSize := 10
 	chunk := newChunk(baseId, chunkSize)
 
-	if chunk.baseId != baseId {
-		t.Errorf("newChunk baseId = %v, want %v", chunk.baseId, baseId)
-	}
-	if len(chunk.records) != 0 {
-		t.Errorf("newChunk len(records) = %d, want 0", len(chunk.records))
-	}
-	if cap(chunk.records) != chunkSize {
-		t.Errorf("newChunk cap(records) = %d, want %d", cap(chunk.records), chunkSize)
-	}
+	assert.Equal(t, baseId, chunk.baseId, "newChunk baseId doesn't match")
+	assert.Empty(t, chunk.records, "newChunk records should be empty")
+	assert.Equal(t, chunkSize, cap(chunk.records), "newChunk cap(records) doesn't match")
 }
 
 func TestVectorsChunk_Add(t *testing.T) {
@@ -34,57 +30,41 @@ func TestVectorsChunk_Add(t *testing.T) {
 
 	// Add first vector
 	id1 := chunk.add(vec1)
-	if id1 != 0 {
-		t.Errorf("add(vec1) id = %v, want 0", id1)
-	}
-	if len(chunk.records) != 1 {
-		t.Fatalf("len(records) after first add = %d, want 1", len(chunk.records))
-	}
+	assert.Equal(t, ID(0), id1, "add(vec1) returned incorrect id")
+	require.Len(t, chunk.records, 1, "len(records) after first add incorrect")
+
 	rec1 := chunk.records[0]
-	// Calculate expected norm for vec1
 	expectedNorm1 := mathutil.VectorNorm(vec1, nil)
-	if rec1.id != 0 || !mathutil.VectorsEq(rec1.vector, vec1) || !mathutil.ApproxEq(rec1.norm, expectedNorm1, 1e-6) {
-		t.Errorf("first record = %+v, want {id: 0, vector: %v, norm: %f}", rec1, vec1, expectedNorm1)
-	}
+	assert.Equal(t, ID(0), rec1.id, "first record id incorrect")
+	assert.True(t, mathutil.VectorsEq(rec1.vector, vec1), "first record vector incorrect")
+	assert.InDelta(t, expectedNorm1, rec1.norm, 1e-6, "first record norm incorrect")
 
 	// Add second vector
 	id2 := chunk.add(vec2)
-	if id2 != 1 {
-		t.Errorf("add(vec2) id = %v, want 1", id2)
-	}
-	if len(chunk.records) != 2 {
-		t.Fatalf("len(records) after second add = %d, want 2", len(chunk.records))
-	}
+	assert.Equal(t, ID(1), id2, "add(vec2) returned incorrect id")
+	require.Len(t, chunk.records, 2, "len(records) after second add incorrect")
+
 	rec2 := chunk.records[1]
-	// Calculate expected norm for vec2
 	expectedNorm2 := mathutil.VectorNorm(vec2, nil)
-	if rec2.id != 1 || !mathutil.VectorsEq(rec2.vector, vec2) || !mathutil.ApproxEq(rec2.norm, expectedNorm2, 1e-6) {
-		t.Errorf("second record = %+v, want {id: 1, vector: %v, norm: %f}", rec2, vec2, expectedNorm2)
-	}
+	assert.Equal(t, ID(1), rec2.id, "second record id incorrect")
+	assert.True(t, mathutil.VectorsEq(rec2.vector, vec2), "second record vector incorrect")
+	assert.InDelta(t, expectedNorm2, rec2.norm, 1e-6, "second record norm incorrect")
 
 	// Add third vector
 	id3 := chunk.add(vec3)
-	if id3 != 2 {
-		t.Errorf("add(vec3) id = %v, want 2", id3)
-	}
-	if len(chunk.records) != 3 {
-		t.Fatalf("len(records) after third add = %d, want 3", len(chunk.records))
-	}
+	assert.Equal(t, ID(2), id3, "add(vec3) returned incorrect id")
+	require.Len(t, chunk.records, 3, "len(records) after third add incorrect")
+
 	rec3 := chunk.records[2]
-	// Calculate expected norm for vec3
 	expectedNorm3 := mathutil.VectorNorm(vec3, nil)
-	if rec3.id != 2 || !mathutil.VectorsEq(rec3.vector, vec3) || !mathutil.ApproxEq(rec3.norm, expectedNorm3, 1e-6) {
-		t.Errorf("third record = %+v, want {id: 2, vector: %v, norm: %f}", rec3, vec3, expectedNorm3)
-	}
+	assert.Equal(t, ID(2), rec3.id, "third record id incorrect")
+	assert.True(t, mathutil.VectorsEq(rec3.vector, vec3), "third record vector incorrect")
+	assert.InDelta(t, expectedNorm3, rec3.norm, 1e-6, "third record norm incorrect")
 
 	// Try adding when full
 	id4 := chunk.add(vec4)
-	if id4 != -1 {
-		t.Errorf("add(vec4) when full id = %v, want -1", id4)
-	}
-	if len(chunk.records) != 3 {
-		t.Errorf("len(records) after failed add = %d, want 3", len(chunk.records))
-	}
+	assert.Equal(t, ID(-1), id4, "add(vec4) when full returned incorrect id")
+	assert.Len(t, chunk.records, 3, "len(records) after failed add incorrect")
 }
 
 func TestVectorsChunk_AddWithBaseId(t *testing.T) {
@@ -96,20 +76,14 @@ func TestVectorsChunk_AddWithBaseId(t *testing.T) {
 	vec2 := Vector{3.0, 4.0}
 
 	id1 := chunk.add(vec1)
-	if id1 != 100 {
-		t.Errorf("add(vec1) id = %v, want 100", id1)
-	}
-	id2 := chunk.add(vec2)
-	if id2 != 101 {
-		t.Errorf("add(vec2) id = %v, want 101", id2)
-	}
+	assert.Equal(t, ID(100), id1, "add(vec1) returned incorrect id")
 
-	if len(chunk.records) != 2 {
-		t.Fatalf("len(records) = %d, want 2", len(chunk.records))
-	}
-	if chunk.records[0].id != 100 || chunk.records[1].id != 101 {
-		t.Errorf("Expected record IDs 100 and 101, got %v and %v", chunk.records[0].id, chunk.records[1].id)
-	}
+	id2 := chunk.add(vec2)
+	assert.Equal(t, ID(101), id2, "add(vec2) returned incorrect id")
+
+	require.Len(t, chunk.records, 2, "len(records) incorrect")
+	assert.Equal(t, ID(100), chunk.records[0].id, "first record id incorrect")
+	assert.Equal(t, ID(101), chunk.records[1].id, "second record id incorrect")
 }
 
 func TestVectorsChunk_Delete(t *testing.T) {
@@ -122,9 +96,7 @@ func TestVectorsChunk_Delete(t *testing.T) {
 	for i := range chunkSize {
 		vec := Vector{float32(i)}
 		ids[i] = chunk.add(vec)
-		if ids[i] != baseId+ID(i) {
-			t.Fatalf("Failed to add vector %d, expected id %v, got %v", i, baseId+ID(i), ids[i])
-		}
+		require.Equal(t, baseId+ID(i), ids[i], "Failed to add vector %d", i)
 	}
 
 	// Test deleting existing items
@@ -138,8 +110,8 @@ func TestVectorsChunk_Delete(t *testing.T) {
 		{name: "Delete first", idToDelete: 10, expectOk: true, expectNil: true},
 		{name: "Delete last", idToDelete: 14, expectOk: true, expectNil: true},
 		{name: "Delete already deleted", idToDelete: 12, expectOk: false, expectNil: true},
-		{name: "Delete non-existent (too low)", idToDelete: 9, expectOk: false, expectNil: false},   // expectNil is false as it's out of bounds
-		{name: "Delete non-existent (too high)", idToDelete: 15, expectOk: false, expectNil: false}, // expectNil is false as it's out of bounds
+		{name: "Delete non-existent (too low)", idToDelete: 9, expectOk: false, expectNil: false},
+		{name: "Delete non-existent (too high)", idToDelete: 15, expectOk: false, expectNil: false},
 		{name: "Delete another existing", idToDelete: 11, expectOk: true, expectNil: true},
 		{name: "Delete the last remaining", idToDelete: 13, expectOk: true, expectNil: true},
 	}
@@ -147,25 +119,21 @@ func TestVectorsChunk_Delete(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ok := chunk.delete(tc.idToDelete)
-			if ok != tc.expectOk {
-				t.Errorf("delete(%v) returned %v, want %v", tc.idToDelete, ok, tc.expectOk)
-			}
+			assert.Equal(t, tc.expectOk, ok, "delete(%v) returned unexpected result", tc.idToDelete)
 
 			// Verify record state (only if ID is within the initial range of this chunk)
 			if tc.idToDelete >= baseId && tc.idToDelete < baseId+ID(chunkSize) {
 				index := int(tc.idToDelete - baseId)
 				if index < 0 || index >= len(chunk.records) {
-					// This case should ideally not happen if the ID is within range,
-					// but adding a safeguard.
 					if tc.expectNil {
-						t.Errorf("Index %d out of bounds for id %v, but expected record to be nil", index, tc.idToDelete)
+						assert.Fail(t, "Index out of bounds for id, but expected record to be nil",
+							"index=%d, id=%v", index, tc.idToDelete)
 					}
 					return // Cannot check chunk.records[index]
 				}
 				recordIsNil := chunk.records[index].vector == nil
-				if recordIsNil != tc.expectNil {
-					t.Errorf("record at index %d (id %v) nil state = %v, want %v", index, tc.idToDelete, recordIsNil, tc.expectNil)
-				}
+				assert.Equal(t, tc.expectNil, recordIsNil,
+					"record at index %d (id %v) has unexpected nil state", index, tc.idToDelete)
 			}
 		})
 	}
@@ -176,8 +144,6 @@ func TestVectorsChunk_Delete(t *testing.T) {
 		id := baseId + ID(i)
 		isNil := rec.vector == nil
 		shouldBeNil := expectedNils[id]
-		if isNil != shouldBeNil {
-			t.Errorf("Final state check: record for id %v nil state = %v, want %v", id, isNil, shouldBeNil)
-		}
+		assert.Equal(t, shouldBeNil, isNil, "Final state check: record for id %v has unexpected nil state", id)
 	}
 }
