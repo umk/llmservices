@@ -14,6 +14,11 @@ func (c *Client) Embeddings(ctx context.Context, input string, params adapter.Em
 	}
 	defer c.s.Release(1)
 
+	// If the model is not set, use the default one
+	if params.Model == "" {
+		params.Model = c.config.Model
+	}
+
 	resp, err := c.adapter.Embeddings(ctx, input, params)
 
 	if err == nil {

@@ -14,6 +14,11 @@ func (c *Client) Completion(ctx context.Context, messages []adapter.Message, par
 	}
 	defer c.s.Release(1)
 
+	// If the model is not set, use the default one
+	if params.Model == "" {
+		params.Model = c.config.Model
+	}
+
 	resp, err := c.adapter.Completion(ctx, messages, params)
 
 	if err == nil {

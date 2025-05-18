@@ -56,6 +56,11 @@ func (c *Client) ThreadCompletion(ctx context.Context, thread *Thread, params ad
 	}
 	defer c.s.Release(1)
 
+	// If the model is not set, use the default one
+	if params.Model == "" {
+		params.Model = c.config.Model
+	}
+
 	var m []adapter.Message
 	for _, f := range thread.Frames {
 		m = append(m, f.Messages...)
