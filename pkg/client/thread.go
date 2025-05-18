@@ -63,7 +63,7 @@ func (c *Client) ThreadCompletion(ctx context.Context, thread *Thread, params ad
 
 	resp, err := c.adapter.Completion(ctx, m, params)
 	if err != nil {
-		return ThreadCompletion{}, nil
+		return ThreadCompletion{}, err
 	}
 
 	c.setSamplesFromCompl(&resp)
