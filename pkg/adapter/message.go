@@ -56,3 +56,11 @@ func CreateToolMessage(callId string, response string) Message {
 		},
 	}
 }
+
+func CreateAssistantMessage(content string) Message {
+	return Message{
+		OfAssistantMessage: &AssistantMessage{
+			Content: &content,
+		},
+	}
+}
