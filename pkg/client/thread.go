@@ -31,8 +31,8 @@ func (t *Thread) Tokens(samples *Samples) int64 {
 	i := len(t.Frames)
 	for ; i > 0; i-- {
 		f := t.Frames[i-1]
-		if f.CompletionTokens > 0 {
-			toks = f.CompletionTokens
+		if f.Tokens > 0 {
+			toks = f.Tokens
 			break
 		}
 	}
@@ -79,7 +79,7 @@ func (c *Client) ThreadCompletion(ctx context.Context, thread *Thread, params ad
 	f.Messages = append(f.Messages, adapter.Message{
 		OfAssistantMessage: &message,
 	})
-	f.CompletionTokens = resp.Usage.CompletionTokens
+	f.Tokens = resp.Usage.PromptTokens + resp.Usage.CompletionTokens
 
 	// Assign the token counts to frames after client stats have been updated.
 	setFrameTokens(thread, c.Samples)
@@ -93,20 +93,20 @@ func (c *Client) ThreadCompletion(ctx context.Context, thread *Thread, params ad
 func setFrameTokens(thread *Thread, samples *Samples) {
 	b := samples.BytesPerTok()
 
-	var completionTokens int64
+	var tokens int64
 	for i := range thread.Frames {
 		f := &thread.Frames[i]
 		if len(f.Messages) == 0 {
 			continue
 		}
-		if f.CompletionTokens > 0 {
-			d := f.CompletionTokens - completionTokens
-			f.Tokens = max(d, 0)
-			completionTokens = f.CompletionTokens
+		if f.Tokens > 0 {
+			d := f.Tokens - tokens
+			f.FrameTokens = max(d, 0)
+			tokens = f.Tokens
 		} else {
 			size := getEstimatedFrameSize(f)
-			f.Tokens = int64(float32(size) / b)
-			completionTokens += f.Tokens
+			f.FrameTokens = int64(float32(size) / b)
+			tokens += f.FrameTokens
 		}
 	}
 }

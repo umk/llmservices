@@ -9,9 +9,11 @@ import (
 type MessagesFrame struct {
 	Messages []adapter.Message `json:"messages" validate:"required,dive"`
 
-	// Derived from completion tokens
-	Tokens           int64 `json:"tokens"`
-	CompletionTokens int64 `json:"completion_tokens"`
+	// FrameTokens in the frame. Derived from total tokens
+	FrameTokens int64 `json:"tokens"`
+
+	// The total tokens of the current and previous frames.
+	Tokens int64 `json:"total_tokens"`
 }
 
 func (f *MessagesFrame) Response() (*adapter.AssistantMessage, error) {
