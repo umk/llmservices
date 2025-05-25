@@ -40,14 +40,12 @@ func NewDatabase[V any](vectorLength int, options ...Option) *Database[V] {
 	}
 
 	// Create database with the configured settings
-	db := &Database[V]{
+	return &Database[V]{
 		vectors:       vectors.NewVectors(128),
 		Data:          make(map[vectors.ID]V),
 		vectorLength:  vectorLength,
 		repackPercent: cfg.repackPercent,
 	}
-
-	return db
 }
 
 func (db *Database[V]) Add(record Record[V]) Record[V] {

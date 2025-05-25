@@ -1,5 +1,7 @@
 package adapter
 
+import "errors"
+
 type Message struct {
 	OfSystemMessage    *SystemMessage    `json:"system,omitempty"`
 	OfUserMessage      *UserMessage      `json:"user,omitempty"`
@@ -19,6 +21,17 @@ type AssistantMessage struct {
 	Content   *string    `json:"content,omitempty"`
 	Refusal   *string    `json:"refusal,omitempty"`
 	ToolCalls []ToolCall `json:"tool_calls,omitempty"`
+}
+
+func (m *AssistantMessage) Text() (string, error) {
+	switch {
+	case m.Refusal != nil:
+		return *m.Refusal, nil
+	case m.Content != nil:
+		return *m.Content, nil
+	default:
+		return "", errors.New("assistant message must have either content or refusal")
+	}
 }
 
 type ToolMessage struct {
