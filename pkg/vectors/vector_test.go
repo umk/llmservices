@@ -12,11 +12,11 @@ func TestNewVectors(t *testing.T) {
 	v := NewVectors(chunkSize)
 
 	require.NotNil(t, v, "NewVectors returned nil")
-	assert.Equal(t, chunkSize, v.chunkSize, "incorrect chunkSize")
+	assert.Equal(t, chunkSize, v.header.ChunkSize, "incorrect chunkSize")
 	assert.Len(t, v.chunks, 1, "expected 1 chunk initially")
 	require.NotNil(t, v.currentChunk, "currentChunk is nil")
-	assert.Equal(t, ID(0), v.currentChunk.baseId, "incorrect baseId")
-	assert.Equal(t, chunkSize, cap(v.currentChunk.records), "incorrect records capacity")
+	assert.Equal(t, ID(0), v.currentChunk.BaseId, "incorrect baseId")
+	assert.Equal(t, chunkSize, cap(v.currentChunk.Records), "incorrect records capacity")
 }
 
 func TestVectors_Add(t *testing.T) {
@@ -42,10 +42,10 @@ func TestVectors_Add(t *testing.T) {
 	assert.Len(t, v.chunks, 2, "expected 2 chunks after adding 3 vectors")
 
 	// First chunk should be full
-	assert.Len(t, v.chunks[0].records, chunkSize, "unexpected number of records in first chunk")
+	assert.Len(t, v.chunks[0].Records, chunkSize, "unexpected number of records in first chunk")
 
 	// Second chunk should have 1 record
-	assert.Len(t, v.chunks[1].records, 1, "expected second chunk to have 1 record")
+	assert.Len(t, v.chunks[1].Records, 1, "expected second chunk to have 1 record")
 
 	// Check that the current chunk is the second chunk
 	assert.Equal(t, v.chunks[1], v.currentChunk, "currentChunk should be the second chunk")
@@ -127,7 +127,7 @@ func TestVectors_Compact(t *testing.T) {
 	v.Compact()
 
 	assert.Len(t, v.chunks, 1, "expected 1 chunk after compact")
-	assert.Equal(t, 3, v.chunkSize, "expected compacted Vectors to maintain original chunkSize")
+	assert.Equal(t, 3, v.header.ChunkSize, "expected compacted Vectors to maintain original chunkSize")
 
 	// Create queries using the original vectors we added (excluding the deleted one)
 	remainingVecs := []struct {
@@ -171,7 +171,7 @@ func TestVectors_Repack(t *testing.T) {
 	newVectors := v.Repack()
 
 	assert.Len(t, newVectors.chunks, 1, "expected 1 chunk after repack")
-	assert.Equal(t, v.chunkSize, newVectors.chunkSize, "expected repacked Vectors to have same chunkSize")
+	assert.Equal(t, v.header.ChunkSize, newVectors.header.ChunkSize, "expected repacked Vectors to have same chunkSize")
 
 	// Create queries using the original vectors we added (excluding the deleted one)
 	remainingVecs := []struct {

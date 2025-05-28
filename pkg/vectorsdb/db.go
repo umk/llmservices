@@ -7,17 +7,21 @@ import (
 	"github.com/umk/llmservices/pkg/vectors"
 )
 
+type databaseHeader struct {
+	VectorLength  int
+	RepackPercent int
+
+	ItemsCount   int
+	DeletesCount int
+}
+
 type Database[V any] struct {
 	mu sync.RWMutex
 
+	header databaseHeader
+
 	vectors *vectors.Vectors
 	Data    map[vectors.ID]V
-
-	vectorLength  int
-	repackPercent int
-
-	itemsCount   int
-	deletesCount int
 
 	repacking bool
 }
@@ -41,10 +45,12 @@ func NewDatabase[V any](vectorLength int, options ...Option) *Database[V] {
 
 	// Create database with the configured settings
 	return &Database[V]{
-		vectors:       vectors.NewVectors(128),
-		Data:          make(map[vectors.ID]V),
-		vectorLength:  vectorLength,
-		repackPercent: cfg.repackPercent,
+		header: databaseHeader{
+			VectorLength:  vectorLength,
+			RepackPercent: cfg.repackPercent,
+		},
+		vectors: vectors.NewVectors(128),
+		Data:    make(map[vectors.ID]V),
 	}
 }
 
@@ -55,7 +61,7 @@ func (db *Database[V]) Add(record Record[V]) Record[V] {
 	record.Vector = db.resizeVector(record.Vector)
 	record = db.addRecord(record)
 
-	db.itemsCount++
+	db.header.ItemsCount++
 	return record
 }
 
@@ -69,7 +75,7 @@ func (db *Database[V]) AddBatch(records []Record[V]) []Record[V] {
 		result[i] = db.addRecord(records[i])
 	}
 
-	db.itemsCount += len(records)
+	db.header.ItemsCount += len(records)
 	return result
 }
 
@@ -122,23 +128,27 @@ func (db *Database[V]) Get(vecs []vectors.Vector, n int) []Record[V] {
 // the threshold. If it does, it triggers a repack operation in a separate
 // goroutine. Must be called from a write lock.
 func (db *Database[V]) increaseDeleteCount(count int) {
-	db.deletesCount += count
+	db.header.DeletesCount += count
 
-	totalItems := db.itemsCount + db.deletesCount
-	if !db.repacking && totalItems > 0 && (db.deletesCount*100/totalItems) > db.repackPercent {
+	totalItems := db.header.ItemsCount + db.header.DeletesCount
+	if !db.repacking && totalItems > 0 && (db.header.DeletesCount*100/totalItems) > db.header.RepackPercent {
 		db.repacking = true
 		go func(vectors *vectors.Vectors) {
 			db.mu.RLock()
 			defer db.mu.RUnlock()
 
-			db.vectors = vectors.Repack()
-
-			db.itemsCount -= db.deletesCount
-			db.deletesCount = 0
+			db.repackVectors()
 
 			db.repacking = false
 		}(db.vectors)
 	}
+}
+
+func (db *Database[V]) repackVectors() {
+	db.vectors = db.vectors.Repack()
+
+	db.header.ItemsCount -= db.header.DeletesCount
+	db.header.DeletesCount = 0
 }
 
 func (db *Database[V]) addRecord(record Record[V]) Record[V] {
@@ -160,10 +170,10 @@ func (db *Database[V]) deleteRecord(id vectors.ID) bool {
 
 func (db *Database[V]) resizeVector(vec vectors.Vector) vectors.Vector {
 	switch {
-	case len(vec) > db.vectorLength:
-		return vec[:db.vectorLength]
-	case len(vec) < db.vectorLength:
-		adjusted := make(vectors.Vector, db.vectorLength)
+	case len(vec) > db.header.VectorLength:
+		return vec[:db.header.VectorLength]
+	case len(vec) < db.header.VectorLength:
+		adjusted := make(vectors.Vector, db.header.VectorLength)
 		copy(adjusted, vec)
 		return adjusted
 	default:

@@ -10,9 +10,9 @@ import (
 func TestMinDistanceHeap_Order(t *testing.T) {
 	h := slices.MakeLimitHeap[*minDistanceHeapItem](3)
 
-	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 1}, similarity: 0.2})
-	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 2}, similarity: 0.8})
-	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 3}, similarity: 0.5})
+	h.Push(&minDistanceHeapItem{record: &chunkRecord{Id: 1}, similarity: 0.2})
+	h.Push(&minDistanceHeapItem{record: &chunkRecord{Id: 2}, similarity: 0.8})
+	h.Push(&minDistanceHeapItem{record: &chunkRecord{Id: 3}, similarity: 0.5})
 
 	assert.Len(t, h, 3, "heap should have size 3")
 
@@ -29,15 +29,15 @@ func TestMinDistanceHeap_Order(t *testing.T) {
 func TestMinDistanceHeap_Capacity(t *testing.T) {
 	h := make(minDistanceHeap, 0, 2)
 
-	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 1}, similarity: 0.1})
-	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 2}, similarity: 0.2})
-	h.Push(&minDistanceHeapItem{record: &chunkRecord{id: 3}, similarity: 0.3}) // Should replace the lowest
+	h.Push(&minDistanceHeapItem{record: &chunkRecord{Id: 1}, similarity: 0.1})
+	h.Push(&minDistanceHeapItem{record: &chunkRecord{Id: 2}, similarity: 0.2})
+	h.Push(&minDistanceHeapItem{record: &chunkRecord{Id: 3}, similarity: 0.3}) // Should replace the lowest
 
 	assert.Len(t, h, 2, "heap should have size 2")
 
 	found := map[ID]bool{}
 	for _, item := range h {
-		found[item.record.id] = true
+		found[item.record.Id] = true
 	}
 	assert.True(t, found[2], "heap should contain ID 2")
 	assert.True(t, found[3], "heap should contain ID 3")

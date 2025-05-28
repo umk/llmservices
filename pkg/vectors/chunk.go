@@ -7,36 +7,36 @@ import (
 )
 
 type vectorsChunk struct {
-	baseId  ID
-	records []*chunkRecord
+	BaseId  ID
+	Records []*chunkRecord
 }
 
 type chunkRecord struct {
-	id     ID
-	vector Vector
-	norm   float64
+	Id     ID
+	Vector Vector
+	Norm   float64
 }
 
 func newChunk(baseId ID, chunkSize int) *vectorsChunk {
 	return &vectorsChunk{
-		baseId:  baseId,
-		records: make([]*chunkRecord, 0, chunkSize),
+		BaseId:  baseId,
+		Records: make([]*chunkRecord, 0, chunkSize),
 	}
 }
 
 func (vc *vectorsChunk) add(vector []float32) ID {
-	if len(vc.records) == cap(vc.records) {
+	if len(vc.Records) == cap(vc.Records) {
 		return -1
 	}
 
-	id := vc.baseId + ID(len(vc.records))
+	id := vc.BaseId + ID(len(vc.Records))
 
 	tmp := vectorsPool.Get(len(vector))
 
-	vc.records = append(vc.records, &chunkRecord{
-		id:     id,
-		vector: vector,
-		norm:   math.VectorNorm(vector, *tmp),
+	vc.Records = append(vc.Records, &chunkRecord{
+		Id:     id,
+		Vector: vector,
+		Norm:   math.VectorNorm(vector, *tmp),
 	})
 
 	vectorsPool.Put(tmp)
@@ -45,12 +45,12 @@ func (vc *vectorsChunk) add(vector []float32) ID {
 }
 
 func (vc *vectorsChunk) delete(id ID) bool {
-	if i, ok := slices.BinarySearchFunc(vc.records, id, func(r *chunkRecord, id ID) int {
-		return int(r.id - id)
+	if i, ok := slices.BinarySearchFunc(vc.Records, id, func(r *chunkRecord, id ID) int {
+		return int(r.Id - id)
 	}); ok {
-		r := vc.records[i]
-		d := (r.vector != nil)
-		r.vector = nil
+		r := vc.Records[i]
+		d := (r.Vector != nil)
+		r.Vector = nil
 		return d
 	}
 	return false
