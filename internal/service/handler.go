@@ -10,6 +10,8 @@ func Handler() *jsonrpc.Handler {
 	return jsonrpc.NewHandler(map[string]jsonrpc.HandlerFunc{
 		"createDatabase": vectors.CreateDatabase,
 		"deleteDatabase": vectors.DeleteDatabase,
+		"readDatabase":   vectors.ReadDatabase,
+		"writeDatabase":  vectors.WriteDatabase,
 
 		"addVector":          vectors.AddVector,
 		"deleteVector":       vectors.DeleteVector,

@@ -14,6 +14,8 @@ The service uses newline character as a delimiter for JSON-RPC messages.
 |--------|-------------|:--------:|
 | `createDatabase` | Creates a new vector database with specified ID and vector length | [↗](internal/service/handlers/vectors/db_models.go) |
 | `deleteDatabase` | Deletes a database by ID | [↗](internal/service/handlers/vectors/db_models.go) |
+| `readDatabase` | Reads serialized database from disk | [↗](internal/service/handlers/vectors/db_models.go) |
+| `writeDatabase` | Writes serialized database to disk | [↗](internal/service/handlers/vectors/db_models.go) |
 
 ### Vector Operations
 

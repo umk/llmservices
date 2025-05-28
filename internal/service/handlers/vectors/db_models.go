@@ -16,3 +16,21 @@ type deleteDatabaseRequest struct {
 }
 
 type deleteDatabaseResponse struct{}
+
+/*** Read Database ***/
+
+type readDatabaseRequest struct {
+	DatabaseId string `json:"database_id" validate:"required"`
+	FilePath   string `json:"file_path" validate:"required"`
+}
+
+type readDatabaseResponse struct{}
+
+/*** Write Database ***/
+
+type writeDatabaseRequest struct {
+	DatabaseId string `json:"database_id" validate:"required"`
+	FilePath   string `json:"file_path" validate:"required"`
+}
+
+type writeDatabaseResponse struct{}
