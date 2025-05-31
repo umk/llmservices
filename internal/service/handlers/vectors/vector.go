@@ -3,7 +3,6 @@ package vectors
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/umk/llmservices/internal/jsonrpc"
 	"github.com/umk/llmservices/pkg/vectors"
@@ -15,7 +14,6 @@ func AddVector(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
 	}
-	fmt.Println(req.DatabaseId)
 
 	db := getDatabase(req.DatabaseId)
 	if db == nil {
