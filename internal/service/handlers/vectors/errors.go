@@ -1,18 +1,18 @@
 package vectors
 
-import "github.com/umk/llmservices/internal/jsonrpc"
+import "github.com/umk/jsonrpc2"
 
-var errDatabaseNotFound = jsonrpc.Error{
+var errDatabaseNotFound = jsonrpc2.Error{
 	Code:    -32000,
 	Message: "Database not found",
 }
 
-var errDatabaseAlreadyExists = jsonrpc.Error{
+var errDatabaseAlreadyExists = jsonrpc2.Error{
 	Code:    -32000,
 	Message: "Database already exists",
 }
 
-var errVectorsLengthMismatch = jsonrpc.Error{
+var errVectorsLengthMismatch = jsonrpc2.Error{
 	Code:    -32000,
 	Message: "Vectors must have the same length",
 }

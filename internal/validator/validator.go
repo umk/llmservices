@@ -8,8 +8,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var V = validator.New(validator.WithRequiredStructEnabled())
-
 func ValidateUnion(sl validator.StructLevel) {
 	// Get current value and its type information
 	current := sl.Current()

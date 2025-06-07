@@ -4,13 +4,13 @@ import (
 	"context"
 	"sync"
 
-	"github.com/umk/llmservices/internal/jsonrpc"
+	"github.com/umk/jsonrpc2"
 	"github.com/umk/llmservices/pkg/client"
 )
 
 var clients sync.Map
 
-func SetClient(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
+func SetClient(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req setClientRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func SetClient(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func GetCompletion(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
+func GetCompletion(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req getCompletionRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func GetCompletion(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	})
 }
 
-func GetEmbeddings(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
+func GetEmbeddings(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req getEmbeddingsRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func GetEmbeddings(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	})
 }
 
-func GetStatistics(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
+func GetStatistics(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req getStatisticsRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func GetStatistics(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func GetThreadCompletion(ctx context.Context, c jsonrpc.RPCContext) (any, error) {
+func GetThreadCompletion(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req getThreadCompletionRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err

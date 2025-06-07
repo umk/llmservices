@@ -1,13 +1,13 @@
 package service
 
 import (
-	"github.com/umk/llmservices/internal/jsonrpc"
+	"github.com/umk/jsonrpc2"
 	"github.com/umk/llmservices/internal/service/handlers/client"
 	"github.com/umk/llmservices/internal/service/handlers/vectors"
 )
 
-func Handler() *jsonrpc.Handler {
-	return jsonrpc.NewHandler(map[string]jsonrpc.HandlerFunc{
+func Handler() *jsonrpc2.Handler {
+	return jsonrpc2.NewHandler(map[string]jsonrpc2.HandlerFunc{
 		"createDatabase": vectors.CreateDatabase,
 		"deleteDatabase": vectors.DeleteDatabase,
 		"readDatabase":   vectors.ReadDatabase,

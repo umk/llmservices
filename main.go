@@ -5,16 +5,15 @@ import (
 	"log"
 	"os"
 
+	"github.com/umk/jsonrpc2"
 	"github.com/umk/llmservices/internal/config"
-	"github.com/umk/llmservices/internal/jsonrpc"
 	"github.com/umk/llmservices/internal/service"
-	"github.com/umk/llmservices/internal/validator"
 	"github.com/umk/llmservices/pkg/adapter"
 	"github.com/umk/llmservices/pkg/vectors"
 )
 
 func main() {
-	adapter.InitValidator(validator.V)
+	adapter.InitValidator(jsonrpc2.Val)
 
 	if err := config.Init(); err != nil {
 		log.Fatalln("Init error:", err)
@@ -23,7 +22,7 @@ func main() {
 	vectors.Init(config.C.VectorSize)
 
 	handler := service.Handler()
-	server := jsonrpc.NewServer(handler)
+	server := jsonrpc2.NewServer(handler)
 
 	ctx := context.Background()
 	if err := server.Run(ctx, os.Stdin, os.Stdout); err != nil {
