@@ -26,7 +26,7 @@ func getCompletionParams(messages []adapter.Message, params adapter.CompletionPa
 		PresencePenalty:  getOpt(params.PresencePenalty),
 		ResponseFormat:   getResponseFormat(params.ResponseFormat),
 		Stop: openai.ChatCompletionNewParamsStopUnion{
-			OfChatCompletionNewsStopArray: params.Stop,
+			OfStringArray: params.Stop,
 		},
 		Temperature: getOpt(params.Temperature),
 		TopP:        getOpt(params.TopP),

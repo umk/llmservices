@@ -81,7 +81,7 @@ func TestGetCompletionRequest(t *testing.T) {
 		assert.Equal(t, openai.Float(temp), r.Temperature)
 		assert.Equal(t, openai.Float(topP), r.TopP)
 		assert.NotNil(t, r.ResponseFormat.OfText)
-		assert.Equal(t, []string{"STOP", "END"}, r.Stop.OfChatCompletionNewsStopArray)
+		assert.Equal(t, []string{"STOP", "END"}, r.Stop.OfStringArray)
 		assert.Len(t, r.Tools, 1)
 		assert.Equal(t, "getWeather", r.Tools[0].Function.Name)
 		assert.Equal(t, openai.String("Get the weather"), r.Tools[0].Function.Description)

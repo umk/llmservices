@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/go-playground/validator/v10 v10.26.0
-	github.com/openai/openai-go v0.1.0-beta.10
+	github.com/openai/openai-go v1.3.0
 	github.com/pehringer/simd v1.2.6
 	github.com/stretchr/testify v1.10.0
 	github.com/umk/jsonrpc2 v0.0.0-20250607195729-e91bce1c9286
