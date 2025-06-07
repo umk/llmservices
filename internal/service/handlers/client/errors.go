@@ -22,3 +22,11 @@ func newEmbeddingsError(err error) error {
 		Data:    map[string]any{"error": err.Error()},
 	}
 }
+
+func newSpeechError(err error) error {
+	return jsonrpc2.Error{
+		Code:    -32000,
+		Message: "Speech error",
+		Data:    map[string]any{"error": err.Error()},
+	}
+}

@@ -25,6 +25,7 @@ func Handler() *jsonrpc2.Handler {
 		"getCompletion":       client.GetCompletion,
 		"getThreadCompletion": client.GetThreadCompletion,
 		"getEmbeddings":       client.GetEmbeddings,
+		"getSpeech":           client.GetSpeech,
 		"getStatistics":       client.GetStatistics,
 	})
 }
