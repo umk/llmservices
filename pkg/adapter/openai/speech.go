@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math"
 
 	"github.com/openai/openai-go"
 	"github.com/umk/llmservices/internal/config"
@@ -12,12 +13,18 @@ import (
 )
 
 func (c *Adapter) Speech(ctx context.Context, message adapter.SpeechMessage, params adapter.SpeechParams) (adapter.Speech, error) {
+	var speed *float64
+	if params.Speed != nil {
+		s := math.Max(0.25, math.Min(4.0, *params.Speed))
+		speed = &s
+	}
+
 	resp, err := c.Audio.Speech.New(ctx, openai.AudioSpeechNewParams{
 		Input:          message.Content,
 		Instructions:   getOpt(message.Instructions),
 		Model:          params.Model,
 		Voice:          openai.AudioSpeechNewParamsVoice(params.Voice),
-		Speed:          getOpt(params.Speed),
+		Speed:          getOpt(speed),
 		ResponseFormat: openai.AudioSpeechNewParamsResponseFormatPCM,
 	})
 	if err != nil {
