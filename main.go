@@ -22,10 +22,10 @@ func main() {
 	vectors.Init(config.C.VectorSize)
 
 	handler := service.Handler()
-	server := jsonrpc2.NewServer(handler)
+	host := jsonrpc2.NewHost(os.Stdin, os.Stdout, jsonrpc2.WithServer(handler))
 
 	ctx := context.Background()
-	if err := server.Run(ctx, os.Stdin, os.Stdout); err != nil {
+	if err := host.Run(ctx); err != nil {
 		log.Fatalln("Error running server:", err)
 	}
 }

@@ -7,7 +7,7 @@ require (
 	github.com/openai/openai-go v1.3.0
 	github.com/pehringer/simd v1.2.6
 	github.com/stretchr/testify v1.10.0
-	github.com/umk/jsonrpc2 v0.0.0-20250607195729-e91bce1c9286
+	github.com/umk/jsonrpc2 v0.0.0-20250612011013-c50366be4737
 	golang.org/x/sync v0.14.0
 )
 
