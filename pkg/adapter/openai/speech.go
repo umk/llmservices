@@ -8,6 +8,7 @@ import (
 	"math"
 
 	"github.com/openai/openai-go"
+	"github.com/umk/llmservices/internal/audio"
 	"github.com/umk/llmservices/internal/config"
 	"github.com/umk/llmservices/pkg/adapter"
 )
@@ -25,7 +26,7 @@ func (c *Adapter) Speech(ctx context.Context, message adapter.SpeechMessage, par
 		Model:          params.Model,
 		Voice:          openai.AudioSpeechNewParamsVoice(params.Voice),
 		Speed:          getOpt(speed),
-		ResponseFormat: openai.AudioSpeechNewParamsResponseFormatPCM,
+		ResponseFormat: openai.AudioSpeechNewParamsResponseFormatWAV,
 	})
 	if err != nil {
 		return adapter.Speech{}, err
@@ -46,7 +47,10 @@ func (c *Adapter) Speech(ctx context.Context, message adapter.SpeechMessage, par
 		return adapter.Speech{}, err
 	}
 
-	return adapter.Speech{
-		Audio: buf.Bytes(),
-	}, nil
+	a, err := audio.ParseWAV(buf.Bytes())
+	if err != nil {
+		return adapter.Speech{}, err
+	}
+
+	return adapter.Speech{Audio: a}, nil
 }
