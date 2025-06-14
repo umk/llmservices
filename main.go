@@ -19,7 +19,7 @@ func main() {
 		log.Fatalln("Init error:", err)
 	}
 
-	vectors.Init(config.C.VectorSize)
+	vectors.Init(config.Cur.VectorBufSize)
 
 	handler := service.Handler()
 	host := jsonrpc2.NewHost(os.Stdin, os.Stdout, jsonrpc2.WithServer(handler))

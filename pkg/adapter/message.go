@@ -35,7 +35,7 @@ func (m *AssistantMessage) Text() (string, error) {
 }
 
 type ToolMessage struct {
-	ToolCallId string            `json:"tool_call_id" validate:"required"`
+	ToolCallID string            `json:"tool_call_id" validate:"required"`
 	Content    []ContentPartText `json:"content" validate:"required,min=1"`
 }
 
@@ -59,10 +59,10 @@ func CreateSystemMessage(content string) Message {
 	}
 }
 
-func CreateToolMessage(callId string, response string) Message {
+func CreateToolMessage(callID string, response string) Message {
 	return Message{
 		OfToolMessage: &ToolMessage{
-			ToolCallId: callId,
+			ToolCallID: callID,
 			Content: []ContentPartText{{
 				Text: response,
 			}},

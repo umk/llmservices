@@ -1,7 +1,7 @@
 package adapter
 
 type ToolCall struct {
-	Id       string           `json:"id" validate:"required"`
+	ID       string           `json:"id" validate:"required"`
 	Function ToolCallFunction `json:"function" validate:"required"`
 }
 

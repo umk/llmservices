@@ -32,7 +32,7 @@ func (c *Adapter) Speech(ctx context.Context, message adapter.SpeechMessage, par
 		return adapter.Speech{}, err
 	}
 
-	n := config.C.AudioBufSize
+	n := config.Cur.AudioBufSize
 	if resp.ContentLength != -1 {
 		// Ensure content length is not greater than 1GB
 		if resp.ContentLength > 1<<30 {

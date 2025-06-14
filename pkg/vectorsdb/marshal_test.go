@@ -49,8 +49,8 @@ func TestMarshalUnmarshalSimple(t *testing.T) {
 
 	// Verify data was preserved
 	assert.Equal(t, len(db.Data), len(unmarshalled.Data))
-	assert.Equal(t, db.Data[addedRecord1.Id], unmarshalled.Data[addedRecord1.Id])
-	assert.Equal(t, db.Data[addedRecord2.Id], unmarshalled.Data[addedRecord2.Id])
+	assert.Equal(t, db.Data[addedRecord1.ID], unmarshalled.Data[addedRecord1.ID])
+	assert.Equal(t, db.Data[addedRecord2.ID], unmarshalled.Data[addedRecord2.ID])
 
 	// Test search functionality to verify vectors were preserved correctly
 	queryVec := vectors.Vector{0.1, 0.2, 0.3} // Should match record1
@@ -105,7 +105,7 @@ func TestMarshalUnmarshalWithDeletes(t *testing.T) {
 	addedRecord3 := db.Add(record3)
 
 	// Delete one record
-	db.Delete(addedRecord2.Id)
+	db.Delete(addedRecord2.ID)
 
 	// Marshal the database
 	buf := &bytes.Buffer{}
@@ -118,9 +118,9 @@ func TestMarshalUnmarshalWithDeletes(t *testing.T) {
 
 	// Verify data was preserved (including the deletion)
 	assert.Equal(t, len(db.Data), len(unmarshalled.Data))
-	assert.Equal(t, db.Data[addedRecord1.Id], unmarshalled.Data[addedRecord1.Id])
-	assert.Equal(t, db.Data[addedRecord3.Id], unmarshalled.Data[addedRecord3.Id])
-	_, ok := unmarshalled.Data[addedRecord2.Id]
+	assert.Equal(t, db.Data[addedRecord1.ID], unmarshalled.Data[addedRecord1.ID])
+	assert.Equal(t, db.Data[addedRecord3.ID], unmarshalled.Data[addedRecord3.ID])
+	_, ok := unmarshalled.Data[addedRecord2.ID]
 	assert.False(t, ok, "Deleted record should not be present")
 }
 
@@ -154,10 +154,10 @@ func TestMarshalUnmarshalComplexType(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify data was preserved
-	assert.Equal(t, db.Data[addedRecord.Id], unmarshalled.Data[addedRecord.Id])
-	assert.Equal(t, "item1", unmarshalled.Data[addedRecord.Id].Name)
-	assert.Equal(t, 42, unmarshalled.Data[addedRecord.Id].Value)
-	assert.Equal(t, []string{"tag1", "tag2"}, unmarshalled.Data[addedRecord.Id].Tags)
+	assert.Equal(t, db.Data[addedRecord.ID], unmarshalled.Data[addedRecord.ID])
+	assert.Equal(t, "item1", unmarshalled.Data[addedRecord.ID].Name)
+	assert.Equal(t, 42, unmarshalled.Data[addedRecord.ID].Value)
+	assert.Equal(t, []string{"tag1", "tag2"}, unmarshalled.Data[addedRecord.ID].Tags)
 }
 
 // Error testing helpers

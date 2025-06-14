@@ -15,7 +15,7 @@ func AddVector(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	db := getDatabase(req.DatabaseId)
+	db := getDatabase(req.DatabaseID)
 	if db == nil {
 		return nil, errDatabaseNotFound
 	}
@@ -26,7 +26,7 @@ func AddVector(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	})
 
 	resp := addVectorResponse{
-		Id: r.Id,
+		ID: r.ID,
 	}
 
 	return c.GetResponse(resp)
@@ -38,12 +38,12 @@ func DeleteVector(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	db := getDatabase(req.DatabaseId)
+	db := getDatabase(req.DatabaseID)
 	if db == nil {
 		return nil, errDatabaseNotFound
 	}
 
-	db.Delete(req.RecordId)
+	db.Delete(req.RecordID)
 
 	resp := deleteVectorResponse{}
 
@@ -56,7 +56,7 @@ func SearchVectors(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	db := getDatabase(req.DatabaseId)
+	db := getDatabase(req.DatabaseID)
 	if db == nil {
 		return nil, errDatabaseNotFound
 	}
@@ -69,7 +69,7 @@ func SearchVectors(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 
 	for _, r := range rs {
 		resp.Records = append(resp.Records, searchVectorRecord{
-			Id:   r.Id,
+			ID:   r.ID,
 			Data: r.Data,
 		})
 	}
@@ -83,7 +83,7 @@ func AddVectorsBatch(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	db := getDatabase(req.DatabaseId)
+	db := getDatabase(req.DatabaseID)
 	if db == nil {
 		return nil, errDatabaseNotFound
 	}
@@ -103,7 +103,7 @@ func AddVectorsBatch(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	}
 
 	for _, r := range rs {
-		resp.Records = append(resp.Records, addVectorsBatchRecord{Id: r.Id})
+		resp.Records = append(resp.Records, addVectorsBatchRecord{ID: r.ID})
 	}
 
 	return c.GetResponse(resp)
@@ -115,12 +115,12 @@ func DeleteVectorsBatch(ctx context.Context, c jsonrpc2.RPCContext) (any, error)
 		return nil, err
 	}
 
-	db := getDatabase(req.DatabaseId)
+	db := getDatabase(req.DatabaseID)
 	if db == nil {
 		return nil, errDatabaseNotFound
 	}
 
-	db.DeleteBatch(req.RecordIds)
+	db.DeleteBatch(req.RecordIDs)
 
 	resp := deleteVectorsBatchResponse{}
 

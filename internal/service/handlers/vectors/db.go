@@ -22,9 +22,9 @@ func CreateDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 
 	db := vectorsdb.NewDatabase[json.RawMessage](
 		req.VectorLength,
-		vectorsdb.WithRepackPercent(config.C.RepackPercent),
+		vectorsdb.WithRepackPercent(config.Cur.RepackPercent),
 	)
-	if _, loaded := databases.LoadOrStore(req.DatabaseId, db); loaded {
+	if _, loaded := databases.LoadOrStore(req.DatabaseID, db); loaded {
 		return nil, errDatabaseAlreadyExists
 	}
 
@@ -39,7 +39,7 @@ func DeleteDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	databases.Delete(req.DatabaseId)
+	databases.Delete(req.DatabaseID)
 
 	resp := deleteDatabaseResponse{}
 
@@ -69,7 +69,7 @@ func ReadDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	databases.Store(req.DatabaseId, db)
+	databases.Store(req.DatabaseID, db)
 
 	resp := readDatabaseResponse{}
 
@@ -82,7 +82,7 @@ func WriteDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	db := getDatabase(req.DatabaseId)
+	db := getDatabase(req.DatabaseID)
 	if db == nil {
 		return nil, errDatabaseNotFound
 	}
@@ -105,8 +105,8 @@ func WriteDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func getDatabase(databaseId string) *vectorsdb.Database[json.RawMessage] {
-	v, ok := databases.Load(databaseId)
+func getDatabase(databaseID string) *vectorsdb.Database[json.RawMessage] {
+	v, ok := databases.Load(databaseID)
 	if !ok {
 		return nil
 	}

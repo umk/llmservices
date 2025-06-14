@@ -2,6 +2,7 @@ package adapter
 
 // Audio represents a parsed WAV file with metadata and raw PCM data
 type Audio struct {
+	Buf      []byte        `json:"-"`        // Raw byte buffer containing the entire WAV file content
 	Metadata AudioMetadata `json:"metadata"` // Format information extracted from the WAV file header
 	Data     AudioData     `json:"data"`     // Raw audio data and related frame information
 }
@@ -18,7 +19,7 @@ type AudioMetadata struct {
 
 // AudioData holds PCM audio data and related properties
 type AudioData struct {
-	Data          []byte `json:"data"`            // Raw PCM audio data bytes
+	Buf           []byte `json:"data"`            // Raw PCM audio data bytes
 	BytesPerFrame int    `json:"bytes_per_frame"` // Number of bytes in each audio frame (NumChannels * BitsPerSample/8)
 	Size          uint32 `json:"size"`            // Total size of the PCM data in bytes
 }

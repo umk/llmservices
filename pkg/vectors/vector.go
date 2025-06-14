@@ -45,9 +45,9 @@ func (v *Vectors) Add(vector Vector) ID {
 		return id
 	}
 
-	baseId := ID(len(v.chunks) * v.header.ChunkSize)
+	baseID := ID(len(v.chunks) * v.header.ChunkSize)
 
-	v.currentChunk = newChunk(baseId, v.header.ChunkSize)
+	v.currentChunk = newChunk(baseID, v.header.ChunkSize)
 	v.chunks = append(v.chunks, v.currentChunk)
 
 	return v.currentChunk.add(vector)
@@ -55,7 +55,7 @@ func (v *Vectors) Add(vector Vector) ID {
 
 func (v *Vectors) Delete(id ID) bool {
 	i, _ := slices.BinarySearchFunc(v.chunks, id, func(c *vectorsChunk, id ID) int {
-		return int((c.BaseId - 1) - id)
+		return int((c.BaseID - 1) - id)
 	})
 	if i == 0 {
 		return false
@@ -69,7 +69,7 @@ func (v *Vectors) Get(vectors []Vector, n int) []ID {
 
 	ids := make([]ID, len(r))
 	for i, hr := range r {
-		ids[i] = hr.record.Id
+		ids[i] = hr.record.ID
 	}
 
 	return ids
@@ -97,7 +97,7 @@ func (v *Vectors) Compact() {
 			destChunk.Records[destRecordIndex] = record
 			// Set new base ID for the chunk when writing its first record
 			if destRecordIndex == 0 {
-				destChunk.BaseId = record.Id
+				destChunk.BaseID = record.ID
 			}
 			destRecordIndex++
 		}
@@ -150,7 +150,7 @@ func (v *Vectors) Repack() *Vectors {
 			}
 			// Set the base ID for a chunk when inserting its first record
 			if len(destChunk.Records) == 0 {
-				destChunk.BaseId = record.Id
+				destChunk.BaseID = record.ID
 			}
 
 			// Append the valid record

@@ -53,7 +53,7 @@ func getEstimatedMessageSize(message *adapter.Message) int64 {
 		}
 
 	case message.OfToolMessage != nil:
-		size += int64(len(message.OfToolMessage.ToolCallId))
+		size += int64(len(message.OfToolMessage.ToolCallID))
 		for _, p := range message.OfToolMessage.Content {
 			size += int64(len(p.Text))
 		}
@@ -67,7 +67,7 @@ func getEstimatedMessageSize(message *adapter.Message) int64 {
 		}
 
 		for _, c := range message.OfAssistantMessage.ToolCalls {
-			size += int64(len(c.Id))
+			size += int64(len(c.ID))
 			size += int64(len(c.Function.Name))
 			size += int64(len(c.Function.Arguments))
 		}

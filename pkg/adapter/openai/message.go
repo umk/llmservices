@@ -51,7 +51,7 @@ func getAssistantMessage(assistantMessage *adapter.AssistantMessage) openai.Chat
 	}
 	for _, call := range assistantMessage.ToolCalls {
 		result.OfAssistant.ToolCalls = append(result.OfAssistant.ToolCalls, openai.ChatCompletionMessageToolCallParam{
-			ID: call.Id,
+			ID: call.ID,
 			Function: openai.ChatCompletionMessageToolCallFunctionParam{
 				Name:      call.Function.Name,
 				Arguments: call.Function.Arguments,
@@ -64,7 +64,7 @@ func getAssistantMessage(assistantMessage *adapter.AssistantMessage) openai.Chat
 func getToolMessage(toolMessage *adapter.ToolMessage) openai.ChatCompletionMessageParamUnion {
 	result := openai.ChatCompletionMessageParamUnion{
 		OfTool: &openai.ChatCompletionToolMessageParam{
-			ToolCallID: toolMessage.ToolCallId,
+			ToolCallID: toolMessage.ToolCallID,
 		},
 	}
 	for _, part := range toolMessage.Content {

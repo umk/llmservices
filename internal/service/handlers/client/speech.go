@@ -12,7 +12,7 @@ func GetSpeech(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	cl := getClient(req.ClientId)
+	cl := getClient(req.ClientID)
 	if cl == nil {
 		return nil, errClientNotFound
 	}

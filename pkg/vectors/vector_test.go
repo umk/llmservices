@@ -15,7 +15,7 @@ func TestNewVectors(t *testing.T) {
 	assert.Equal(t, chunkSize, v.header.ChunkSize, "incorrect chunkSize")
 	assert.Len(t, v.chunks, 1, "expected 1 chunk initially")
 	require.NotNil(t, v.currentChunk, "currentChunk is nil")
-	assert.Equal(t, ID(0), v.currentChunk.BaseId, "incorrect baseId")
+	assert.Equal(t, ID(0), v.currentChunk.BaseID, "incorrect baseId")
 	assert.Equal(t, chunkSize, cap(v.currentChunk.Records), "incorrect records capacity")
 }
 

@@ -13,7 +13,7 @@ func TestNewChunk(t *testing.T) {
 	chunkSize := 10
 	chunk := newChunk(baseId, chunkSize)
 
-	assert.Equal(t, baseId, chunk.BaseId, "newChunk baseId doesn't match")
+	assert.Equal(t, baseId, chunk.BaseID, "newChunk baseId doesn't match")
 	assert.Empty(t, chunk.Records, "newChunk records should be empty")
 	assert.Equal(t, chunkSize, cap(chunk.Records), "newChunk cap(records) doesn't match")
 }
@@ -35,7 +35,7 @@ func TestVectorsChunk_Add(t *testing.T) {
 
 	rec1 := chunk.Records[0]
 	expectedNorm1 := mathutil.VectorNorm(vec1, nil)
-	assert.Equal(t, ID(0), rec1.Id, "first record id incorrect")
+	assert.Equal(t, ID(0), rec1.ID, "first record id incorrect")
 	assert.True(t, mathutil.VectorsEq(rec1.Vector, vec1), "first record vector incorrect")
 	assert.InDelta(t, expectedNorm1, rec1.Norm, 1e-6, "first record norm incorrect")
 
@@ -46,7 +46,7 @@ func TestVectorsChunk_Add(t *testing.T) {
 
 	rec2 := chunk.Records[1]
 	expectedNorm2 := mathutil.VectorNorm(vec2, nil)
-	assert.Equal(t, ID(1), rec2.Id, "second record id incorrect")
+	assert.Equal(t, ID(1), rec2.ID, "second record id incorrect")
 	assert.True(t, mathutil.VectorsEq(rec2.Vector, vec2), "second record vector incorrect")
 	assert.InDelta(t, expectedNorm2, rec2.Norm, 1e-6, "second record norm incorrect")
 
@@ -57,7 +57,7 @@ func TestVectorsChunk_Add(t *testing.T) {
 
 	rec3 := chunk.Records[2]
 	expectedNorm3 := mathutil.VectorNorm(vec3, nil)
-	assert.Equal(t, ID(2), rec3.Id, "third record id incorrect")
+	assert.Equal(t, ID(2), rec3.ID, "third record id incorrect")
 	assert.True(t, mathutil.VectorsEq(rec3.Vector, vec3), "third record vector incorrect")
 	assert.InDelta(t, expectedNorm3, rec3.Norm, 1e-6, "third record norm incorrect")
 
@@ -82,8 +82,8 @@ func TestVectorsChunk_AddWithBaseId(t *testing.T) {
 	assert.Equal(t, ID(101), id2, "add(vec2) returned incorrect id")
 
 	require.Len(t, chunk.Records, 2, "len(records) incorrect")
-	assert.Equal(t, ID(100), chunk.Records[0].Id, "first record id incorrect")
-	assert.Equal(t, ID(101), chunk.Records[1].Id, "second record id incorrect")
+	assert.Equal(t, ID(100), chunk.Records[0].ID, "first record id incorrect")
+	assert.Equal(t, ID(101), chunk.Records[1].ID, "second record id incorrect")
 }
 
 func TestVectorsChunk_Delete(t *testing.T) {

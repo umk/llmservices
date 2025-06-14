@@ -35,6 +35,7 @@ func ParseWAV(buf []byte) (adapter.Audio, error) {
 	}
 
 	return adapter.Audio{
+		Buf:      buf,
 		Metadata: metadata,
 		Data:     data,
 	}, nil
@@ -62,24 +63,24 @@ func getWAVChunk(data []byte, chunkID string) (offset int, size int, err error) 
 }
 
 // getWAVMetadata finds and processes the format chunk and returns WAV metadata
-func getWAVMetadata(data []byte) (adapter.AudioMetadata, error) {
+func getWAVMetadata(buf []byte) (adapter.AudioMetadata, error) {
 	// Find 'fmt ' chunk
-	fmtOffset, fmtChunkSize, err := getWAVChunk(data, "fmt ")
+	fmtOffset, fmtChunkSize, err := getWAVChunk(buf, "fmt ")
 	if err != nil {
 		return adapter.AudioMetadata{}, err
 	}
 
-	if fmtChunkSize < 16 || fmtOffset+8+fmtChunkSize > len(data) {
+	if fmtChunkSize < 16 || fmtOffset+8+fmtChunkSize > len(buf) {
 		return adapter.AudioMetadata{}, errors.New("invalid WAV: format chunk too small")
 	}
 
 	metadata := adapter.AudioMetadata{
-		Format:        binary.LittleEndian.Uint16(data[fmtOffset+8 : fmtOffset+10]),
-		Channels:      binary.LittleEndian.Uint16(data[fmtOffset+10 : fmtOffset+12]),
-		SampleRate:    binary.LittleEndian.Uint32(data[fmtOffset+12 : fmtOffset+16]),
-		ByteRate:      binary.LittleEndian.Uint32(data[fmtOffset+16 : fmtOffset+20]),
-		BlockAlign:    binary.LittleEndian.Uint16(data[fmtOffset+20 : fmtOffset+22]),
-		BitsPerSample: binary.LittleEndian.Uint16(data[fmtOffset+22 : fmtOffset+24]),
+		Format:        binary.LittleEndian.Uint16(buf[fmtOffset+8 : fmtOffset+10]),
+		Channels:      binary.LittleEndian.Uint16(buf[fmtOffset+10 : fmtOffset+12]),
+		SampleRate:    binary.LittleEndian.Uint32(buf[fmtOffset+12 : fmtOffset+16]),
+		ByteRate:      binary.LittleEndian.Uint32(buf[fmtOffset+16 : fmtOffset+20]),
+		BlockAlign:    binary.LittleEndian.Uint16(buf[fmtOffset+20 : fmtOffset+22]),
+		BitsPerSample: binary.LittleEndian.Uint16(buf[fmtOffset+22 : fmtOffset+24]),
 	}
 
 	// Only support PCM format (1)
@@ -91,15 +92,19 @@ func getWAVMetadata(data []byte) (adapter.AudioMetadata, error) {
 }
 
 // getWAVData finds and processes the data chunk and returns PCM data
-func getWAVData(data []byte, metadata adapter.AudioMetadata) (adapter.AudioData, error) {
+func getWAVData(buf []byte, metadata adapter.AudioMetadata) (adapter.AudioData, error) {
 	// Find 'data' chunk
-	dataOffset, dataChunkSize, err := getWAVChunk(data, "data")
+	dataOffset, dataChunkSize, err := getWAVChunk(buf, "data")
 	if err != nil {
 		return adapter.AudioData{}, err
 	}
 
 	dataSize := uint32(dataChunkSize)
-	if dataOffset+8+int(dataSize) > len(data) {
+	if dataSize == 0xFFFFFFFF {
+		dataSize = uint32(len(buf) - (dataOffset + 8))
+	}
+
+	if dataOffset+8+int(dataSize) > len(buf) {
 		return adapter.AudioData{}, errors.New("invalid WAV: data chunk exceeds file size")
 	}
 
@@ -108,10 +113,10 @@ func getWAVData(data []byte, metadata adapter.AudioMetadata) (adapter.AudioData,
 		return adapter.AudioData{}, errors.New("invalid WAV: zero or negative bytes per frame")
 	}
 
-	pcmData := data[dataOffset+8 : dataOffset+8+int(dataSize)]
+	pcmData := buf[dataOffset+8 : dataOffset+8+int(dataSize)]
 
 	return adapter.AudioData{
-		Data:          pcmData,
+		Buf:           pcmData,
 		BytesPerFrame: bytesPerFrame,
 		Size:          dataSize,
 	}, nil

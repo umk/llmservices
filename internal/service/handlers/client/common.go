@@ -12,7 +12,7 @@ func GetCompletion(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	cl := getClient(req.ClientId)
+	cl := getClient(req.ClientID)
 	if cl == nil {
 		return nil, errClientNotFound
 	}
@@ -33,7 +33,7 @@ func GetEmbeddings(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	cl := getClient(req.ClientId)
+	cl := getClient(req.ClientID)
 	if cl == nil {
 		return nil, errClientNotFound
 	}
@@ -54,7 +54,7 @@ func GetStatistics(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 		return nil, err
 	}
 
-	cl := getClient(req.ClientId)
+	cl := getClient(req.ClientID)
 	if cl == nil {
 		return nil, errClientNotFound
 	}
@@ -72,7 +72,7 @@ func GetThreadCompletion(ctx context.Context, c jsonrpc2.RPCContext) (any, error
 		return nil, err
 	}
 
-	cl := getClient(req.ClientId)
+	cl := getClient(req.ClientID)
 	if cl == nil {
 		return nil, errClientNotFound
 	}

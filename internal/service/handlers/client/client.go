@@ -22,15 +22,15 @@ func SetClient(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	}
 
 	cl := client.New(conf)
-	clients.Store(req.ClientId, cl)
+	clients.Store(req.ClientID, cl)
 
 	var resp setClientResponse
 
 	return c.GetResponse(resp)
 }
 
-func getClient(clientId string) *client.Client {
-	v, ok := clients.Load(clientId)
+func getClient(clientID string) *client.Client {
+	v, ok := clients.Load(clientID)
 	if !ok {
 		return nil
 	}

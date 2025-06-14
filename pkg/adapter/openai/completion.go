@@ -67,7 +67,7 @@ func getCompletionResponse(resp *openai.ChatCompletion) (adapter.Completion, err
 
 	for _, call := range message.ToolCalls {
 		result.Message.ToolCalls = append(result.Message.ToolCalls, adapter.ToolCall{
-			Id: call.ID,
+			ID: call.ID,
 			Function: adapter.ToolCallFunction{
 				Name:      call.Function.Name,
 				Arguments: call.Function.Arguments,

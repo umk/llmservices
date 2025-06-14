@@ -204,7 +204,7 @@ func TestGetCompletionResponse(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Len(t, result.Message.ToolCalls, 1)
-		assert.Equal(t, "call_123", result.Message.ToolCalls[0].Id)
+		assert.Equal(t, "call_123", result.Message.ToolCalls[0].ID)
 		assert.Equal(t, "getWeather", result.Message.ToolCalls[0].Function.Name)
 		assert.Equal(t, `{"location":"New York"}`, result.Message.ToolCalls[0].Function.Arguments)
 	})

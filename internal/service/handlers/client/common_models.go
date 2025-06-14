@@ -8,7 +8,7 @@ import (
 /*** Get completion ***/
 
 type getCompletionRequest struct {
-	ClientId string                   `json:"client_id" validate:"required"`
+	ClientID string                   `json:"client_id" validate:"required"`
 	Messages []adapter.Message        `json:"messages" validate:"required,min=1"`
 	Params   adapter.CompletionParams `json:"params"`
 }
@@ -22,7 +22,7 @@ type getCompletionResponse struct {
 type getEmbeddingsRequest struct {
 	Input    string                   `json:"input" validate:"required"`
 	Params   adapter.EmbeddingsParams `json:"params"`
-	ClientId string                   `json:"client_id" validate:"required"`
+	ClientID string                   `json:"client_id" validate:"required"`
 }
 
 type getEmbeddingsResponse struct {
@@ -32,7 +32,7 @@ type getEmbeddingsResponse struct {
 /*** Get statistics ***/
 
 type getStatisticsRequest struct {
-	ClientId string `json:"client_id" validate:"required"`
+	ClientID string `json:"client_id" validate:"required"`
 }
 
 type getStatisticsResponse struct {
@@ -42,7 +42,7 @@ type getStatisticsResponse struct {
 /*** Get thread completion ***/
 
 type getThreadCompletionRequest struct {
-	ClientId string                   `json:"client_id" validate:"required"`
+	ClientID string                   `json:"client_id" validate:"required"`
 	Thread   client.Thread            `json:"thread"`
 	Params   adapter.CompletionParams `json:"params"`
 }

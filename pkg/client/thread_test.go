@@ -173,7 +173,7 @@ func TestThread_TokensWithMultipleMessageTypes(t *testing.T) {
 							Content: &content, // 16 bytes ("I'm an assistant")
 							ToolCalls: []adapter.ToolCall{
 								{
-									Id: "tool1", // 5 bytes
+									ID: "tool1", // 5 bytes
 									Function: adapter.ToolCallFunction{
 										Name:      "testFunc",            // 8 bytes
 										Arguments: "{\"key\":\"value\"}", // 15 bytes
@@ -184,7 +184,7 @@ func TestThread_TokensWithMultipleMessageTypes(t *testing.T) {
 					},
 					{
 						OfToolMessage: &adapter.ToolMessage{
-							ToolCallId: "tool1", // 5 bytes
+							ToolCallID: "tool1", // 5 bytes
 							Content: []adapter.ContentPartText{
 								{
 									Text: "Tool response", // 13 bytes

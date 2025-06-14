@@ -13,15 +13,15 @@ type Config struct {
 
 	// Pooled vector size. Can be greater or less to the size of
 	// actual vectors operated by a client.
-	VectorSize int
+	VectorBufSize int
 
 	// Size of an audio buffer used by default.
 	AudioBufSize int
 }
 
-var C = Config{
+var Cur = Config{
 	RepackPercent: 10,
-	VectorSize:    20_000,
+	VectorBufSize: 1 << 12,
 	AudioBufSize:  1 << 21,
 }
 
@@ -34,9 +34,9 @@ func Init() error {
 		flag.PrintDefaults()
 	}
 
-	flag.IntVar(&C.RepackPercent, "repack", C.RepackPercent, "percentage of deleted items that triggers repack")
-	flag.IntVar(&C.VectorSize, "vector", C.VectorSize, "vector size in vectors pool")
-	flag.IntVar(&C.AudioBufSize, "audio-buf", C.AudioBufSize, "size of audio buffer in bytes")
+	flag.IntVar(&Cur.RepackPercent, "repack", Cur.RepackPercent, "percentage of deleted items that triggers repack")
+	flag.IntVar(&Cur.VectorBufSize, "vectorbuf", Cur.VectorBufSize, "vector size in vectors pool")
+	flag.IntVar(&Cur.AudioBufSize, "audiobuf", Cur.AudioBufSize, "size of audio buffer in bytes")
 
 	// Parse the flags
 	flag.Parse()
@@ -47,17 +47,17 @@ func Init() error {
 	}
 
 	// Validate repack percentage
-	if C.RepackPercent <= 0 || C.RepackPercent > 100 {
+	if Cur.RepackPercent <= 0 || Cur.RepackPercent > 100 {
 		return errors.New("repack percentage must be between 1 and 100")
 	}
 
 	// Validate vector size
-	if C.VectorSize <= 0 {
+	if Cur.VectorBufSize <= 0 {
 		return errors.New("vector size must be greater than 0")
 	}
 
 	// Validate audio buffer size
-	if C.AudioBufSize < 100_000 {
+	if Cur.AudioBufSize < 100_000 {
 		return errors.New("audio buffer size must be at least 100,000 bytes")
 	}
 

@@ -27,7 +27,7 @@ type Database[V any] struct {
 }
 
 type Record[V any] struct {
-	Id     vectors.ID
+	ID     vectors.ID
 	Vector vectors.Vector
 	Data   V
 }
@@ -35,7 +35,7 @@ type Record[V any] struct {
 func NewDatabase[V any](vectorLength int, options ...Option) *Database[V] {
 	// Create default configuration
 	cfg := &dbConfig{
-		repackPercent: config.C.RepackPercent,
+		repackPercent: config.Cur.RepackPercent,
 	}
 
 	// Apply options
@@ -116,7 +116,7 @@ func (db *Database[V]) Get(vecs []vectors.Vector, n int) []Record[V] {
 	r := make([]Record[V], len(ids))
 	for i, id := range ids {
 		r[i] = Record[V]{
-			Id:   id,
+			ID:   id,
 			Data: db.Data[id],
 		}
 	}
@@ -152,10 +152,10 @@ func (db *Database[V]) repackVectors() {
 }
 
 func (db *Database[V]) addRecord(record Record[V]) Record[V] {
-	record.Id = db.vectors.Add(record.Vector)
+	record.ID = db.vectors.Add(record.Vector)
 	record.Vector = nil
 
-	db.Data[record.Id] = record.Data
+	db.Data[record.ID] = record.Data
 
 	return record
 }

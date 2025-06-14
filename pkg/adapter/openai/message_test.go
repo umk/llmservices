@@ -102,7 +102,7 @@ func TestGetMessage_AssistantMessageWithToolCalls(t *testing.T) {
 		OfAssistantMessage: &adapter.AssistantMessage{
 			ToolCalls: []adapter.ToolCall{
 				{
-					Id: "call_123",
+					ID: "call_123",
 					Function: adapter.ToolCallFunction{
 						Name:      "get_weather",
 						Arguments: `{"location":"New York"}`,
@@ -124,7 +124,7 @@ func TestGetMessage_AssistantMessageWithToolCalls(t *testing.T) {
 func TestGetMessage_ToolMessage(t *testing.T) {
 	message := &adapter.Message{
 		OfToolMessage: &adapter.ToolMessage{
-			ToolCallId: "call_123",
+			ToolCallID: "call_123",
 			Content: []adapter.ContentPartText{
 				{
 					Text: "Tool response",
