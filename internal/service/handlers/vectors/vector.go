@@ -9,7 +9,7 @@ import (
 	"github.com/umk/llmservices/pkg/vectorsdb"
 )
 
-func AddVector(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func AddVectorRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req addVectorRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func AddVector(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func DeleteVector(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func DeleteVectorRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req deleteVectorRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func DeleteVector(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func SearchVectors(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func SearchVectorsRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req searchVectorsRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func SearchVectors(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func AddVectorsBatch(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func AddVectorsBatchRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req addVectorsBatchRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func AddVectorsBatch(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func DeleteVectorsBatch(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func DeleteVectorsBatchRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req deleteVectorsBatchRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -127,7 +127,7 @@ func DeleteVectorsBatch(ctx context.Context, c jsonrpc2.RPCContext) (any, error)
 	return c.GetResponse(resp)
 }
 
-func GetSimilarity(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func GetSimilarityRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req getSimilarityRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err

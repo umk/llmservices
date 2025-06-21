@@ -8,23 +8,6 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
-type Config struct {
-	Preset Preset
-
-	BaseURL string
-	Key     string
-	Model   string
-
-	Concurrency int
-}
-
-type Preset string
-
-const (
-	OpenAI Preset = "openai"
-	Ollama Preset = "ollama"
-)
-
 type Client struct {
 	config  *Config
 	adapter adapter.Adapter
@@ -38,25 +21,39 @@ const (
 	minSampleSize      = 100
 )
 
-func New(p *Config) *Client {
+func New(p *Config) (*Client, error) {
+	a, err := GetAdapter(p)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Client{
 		config:  p,
-		adapter: createAdapter(p),
+		adapter: a,
 		s:       semaphore.NewWeighted(int64(p.Concurrency)),
-		Samples: newSamples(samplesCount, defaultBytesPerTok),
-	}
+		Samples: NewSamples(samplesCount, defaultBytesPerTok),
+	}, nil
 }
 
-func createAdapter(p *Config) adapter.Adapter {
-	switch p.Preset {
+func GetAdapter(p *Config) (adapter.Adapter, error) {
+	if p.Preset == nil {
+		return GetOpenAIAdapter(p)
+	}
+
+	switch *p.Preset {
 	case OpenAI, Ollama:
-		return createOpenAIAdapter(p)
+		return GetOpenAIAdapter(p)
 	default:
 		panic("preset is not supported")
 	}
 }
 
-func createOpenAIAdapter(p *Config) adapter.Adapter {
+func GetOpenAIAdapter(p *Config) (adapter.Adapter, error) {
+	p, err := getConfig(p, OpenAI, Ollama)
+	if err != nil {
+		return nil, err
+	}
+
 	var opts []option.RequestOption
 
 	if p.BaseURL != "" {
@@ -68,5 +65,5 @@ func createOpenAIAdapter(p *Config) adapter.Adapter {
 
 	return &openaiadapter.Adapter{
 		Client: openai.NewClient(opts...),
-	}
+	}, nil
 }

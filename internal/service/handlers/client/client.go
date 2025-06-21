@@ -10,30 +10,33 @@ import (
 
 var clients sync.Map
 
-func SetClient(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func SetClientRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req setClientRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
 	}
 
-	conf, err := getClientConfig(&req.Config)
+	cl, err := client.New(&req.Config)
 	if err != nil {
-		return nil, err
+		return nil, newConfigError(err)
 	}
 
-	cl := client.New(conf)
-	clients.Store(req.ClientID, cl)
+	SetClient(req.ClientID, cl)
 
 	var resp setClientResponse
 
 	return c.GetResponse(resp)
 }
 
-func getClient(clientID string) *client.Client {
+func GetClient(clientID string) (*client.Client, error) {
 	v, ok := clients.Load(clientID)
 	if !ok {
-		return nil
+		return nil, errClientNotFound
 	}
 
-	return v.(*client.Client)
+	return v.(*client.Client), nil
+}
+
+func SetClient(clientID string, client *client.Client) {
+	clients.Store(clientID, client)
 }

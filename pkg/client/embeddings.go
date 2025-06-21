@@ -35,6 +35,6 @@ func (c *Client) setSamplesFromEmbedding(input string, resp *adapter.Embeddings)
 	}
 
 	if b := len(input); b >= minSampleSize {
-		c.Samples.put(float32(b) / float32(toks))
+		c.Samples.Put(float32(b) / float32(toks))
 	}
 }

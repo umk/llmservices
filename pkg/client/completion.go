@@ -39,6 +39,6 @@ func (c *Client) setSamplesFromCompl(resp *adapter.Completion) {
 	}
 
 	if b := len(*resp.Message.Content); b >= minSampleSize {
-		c.Samples.put(float32(b) / float32(toks))
+		c.Samples.Put(float32(b) / float32(toks))
 	}
 }

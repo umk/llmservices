@@ -2,12 +2,25 @@ package client
 
 import (
 	"fmt"
-
-	"github.com/umk/llmservices/pkg/client"
+	"slices"
 )
 
-func getClientConfig(src *clientConfig) (*client.Config, error) {
-	dest := client.Config{
+type Config struct {
+	Preset *Preset `json:"preset" validate:"omitempty,min=1"`
+
+	BaseURL string `json:"base_url" validate:"omitempty,url"`
+	Key     string `json:"key" validate:"omitempty"`
+	Model   string `json:"model" validate:"omitempty"`
+
+	Concurrency int `json:"concurrency" validate:"omitempty,min=1"`
+}
+
+func getConfig(src *Config, allowed ...Preset) (*Config, error) {
+	if src.Preset != nil && slices.Contains(allowed, *src.Preset) {
+		return nil, fmt.Errorf("preset is not supported: %s", *src.Preset)
+	}
+
+	dest := Config{
 		Concurrency: 1,
 	}
 
@@ -20,9 +33,6 @@ func getClientConfig(src *clientConfig) (*client.Config, error) {
 		if err := setConfig(&dest, &preset); err != nil {
 			return nil, err
 		}
-		dest.Preset = *src.Preset
-	} else {
-		dest.Preset = client.OpenAI
 	}
 
 	if err := setConfig(&dest, src); err != nil {
@@ -36,7 +46,7 @@ func getClientConfig(src *clientConfig) (*client.Config, error) {
 	return &dest, nil
 }
 
-func setConfig(dest *client.Config, src *clientConfig) error {
+func setConfig(dest *Config, src *Config) error {
 	if src.BaseURL != "" {
 		dest.BaseURL = src.BaseURL
 	}

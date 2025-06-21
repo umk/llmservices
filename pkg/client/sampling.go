@@ -8,14 +8,14 @@ type Samples struct {
 	n int
 }
 
-func newSamples(n int, def float32) *Samples {
+func NewSamples(n int, base float32) *Samples {
 	if n <= 0 {
 		panic("number of items must be a positive value")
 	}
 
 	bytesPerTok := make([]float32, n)
 	for i := range bytesPerTok {
-		bytesPerTok[i] = def
+		bytesPerTok[i] = base
 	}
 
 	return &Samples{
@@ -32,7 +32,7 @@ func (s *Samples) BytesPerTok() float32 {
 	return r / float32(len(s.bytesPerTok))
 }
 
-func (s *Samples) put(bytesPerTok float32) {
+func (s *Samples) Put(bytesPerTok float32) {
 	n := (s.n + 1) % len(s.bytesPerTok)
 	s.n = n
 

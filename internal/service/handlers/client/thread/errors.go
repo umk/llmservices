@@ -1,16 +1,16 @@
-package client
+package thread
 
 import "github.com/umk/jsonrpc2"
 
-var errClientNotFound = jsonrpc2.Error{
+var errSummarizerParams = jsonrpc2.Error{
 	Code:    -32000,
-	Message: "Client not found",
+	Message: "Must specify either the max tokens or max messages",
 }
 
-func newConfigError(err error) error {
+func newResponseError(err error) error {
 	return jsonrpc2.Error{
 		Code:    -32000,
-		Message: "Configuration error",
+		Message: "Response error",
 		Data:    map[string]any{"error": err.Error()},
 	}
 }
@@ -23,18 +23,10 @@ func newCompletionError(err error) error {
 	}
 }
 
-func newEmbeddingsError(err error) error {
+func newSummarizerError(err error) error {
 	return jsonrpc2.Error{
 		Code:    -32000,
-		Message: "Embeddings error",
-		Data:    map[string]any{"error": err.Error()},
-	}
-}
-
-func newSpeechError(err error) error {
-	return jsonrpc2.Error{
-		Code:    -32000,
-		Message: "Speech error",
+		Message: "Summarizer error",
 		Data:    map[string]any{"error": err.Error()},
 	}
 }

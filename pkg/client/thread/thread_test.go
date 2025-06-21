@@ -1,15 +1,16 @@
-package client
+package thread
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/umk/llmservices/pkg/adapter"
+	"github.com/umk/llmservices/pkg/client"
 )
 
 func TestThread_Tokens(t *testing.T) {
 	// Create a test samples object with a known BytesPerTok value
-	samples := newSamples(5, 4.0) // 4.0 bytes per token
+	samples := client.NewSamples(5, 4.0) // 4.0 bytes per token
 
 	// Test cases
 	tests := []struct {
@@ -132,7 +133,7 @@ func TestThread_Tokens(t *testing.T) {
 
 func TestThread_TokensWithMultipleMessageTypes(t *testing.T) {
 	// Create a test samples object with a known BytesPerTok value
-	samples := newSamples(5, 2.0) // 2.0 bytes per token
+	samples := client.NewSamples(5, 2.0) // 2.0 bytes per token
 
 	// Create a content pointer for assistant message
 	content := "I'm an assistant"
@@ -209,7 +210,7 @@ func TestThread_TokensWithMultipleMessageTypes(t *testing.T) {
 
 func TestThread_TokensEmptyFrames(t *testing.T) {
 	// Create a test samples object with a known BytesPerTok value
-	samples := newSamples(5, 3.0)
+	samples := client.NewSamples(5, 3.0)
 
 	// Test with no frame containing token information
 	thread := &Thread{
@@ -253,7 +254,7 @@ func TestThread_TokensEmptyFrames(t *testing.T) {
 
 func TestThread_TokensWithRefusal(t *testing.T) {
 	// Create a test samples object with a known BytesPerTok value
-	samples := newSamples(5, 2.5) // 2.5 bytes per token
+	samples := client.NewSamples(5, 2.5) // 2.5 bytes per token
 
 	// Create a refusal message
 	refusal := "I cannot comply with that request"
@@ -282,7 +283,7 @@ func TestThread_TokensWithRefusal(t *testing.T) {
 
 func TestThread_TokensEmptyThread(t *testing.T) {
 	// Create a test samples object
-	samples := newSamples(5, 3.0)
+	samples := client.NewSamples(5, 3.0)
 
 	// Test with empty frames list
 	thread := &Thread{

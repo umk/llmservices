@@ -5,18 +5,23 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Config struct {
 	// Vectors database repack percentage threshold
 	RepackPercent int
 
-	// Pooled vector size. Can be greater or less to the size of
-	// actual vectors operated by a client.
+	// Pooled vector size. Can be greater or less to the size of actual vectors
+	// operated by a client.
 	VectorBufSize int
 
 	// Size of an audio buffer used by default.
 	AudioBufSize int
+
+	// Absolute or relative path to a configuration file, or dash if configuration
+	// should be read from standard input.
+	Config string
 }
 
 var Cur = Config{
@@ -37,6 +42,7 @@ func Init() error {
 	flag.IntVar(&Cur.RepackPercent, "repack", Cur.RepackPercent, "percentage of deleted items that triggers repack")
 	flag.IntVar(&Cur.VectorBufSize, "vectorbuf", Cur.VectorBufSize, "vector size in vectors pool")
 	flag.IntVar(&Cur.AudioBufSize, "audiobuf", Cur.AudioBufSize, "size of audio buffer in bytes")
+	flag.StringVar(&Cur.Config, "config", Cur.Config, "path to configuration file, or dash to read from STDIN")
 
 	// Parse the flags
 	flag.Parse()
@@ -60,6 +66,8 @@ func Init() error {
 	if Cur.AudioBufSize < 100_000 {
 		return errors.New("audio buffer size must be at least 100,000 bytes")
 	}
+
+	Cur.Config = strings.TrimSpace(Cur.Config)
 
 	return nil
 }

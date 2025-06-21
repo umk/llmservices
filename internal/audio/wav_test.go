@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// createValidWAV creates a minimal valid WAV file as a byte slice
-func createValidWAV() []byte {
+// createWAV creates a minimal valid WAV file as a byte slice
+func createWAV() []byte {
 	// Simple mono 16-bit PCM at 44100Hz
 	const (
 		numChannels   = 1
@@ -55,7 +55,7 @@ func createValidWAV() []byte {
 
 func TestParseWAV(t *testing.T) {
 	t.Run("Valid WAV", func(t *testing.T) {
-		wavData := createValidWAV()
+		wavData := createWAV()
 
 		audio, err := ParseWAV(wavData)
 
@@ -78,7 +78,7 @@ func TestParseWAV(t *testing.T) {
 	})
 
 	t.Run("Invalid RIFF Header", func(t *testing.T) {
-		wavData := createValidWAV()
+		wavData := createWAV()
 		copy(wavData[0:4], "ABCD") // Corrupt RIFF header
 
 		_, err := ParseWAV(wavData)
@@ -88,7 +88,7 @@ func TestParseWAV(t *testing.T) {
 	})
 
 	t.Run("Invalid WAVE Format", func(t *testing.T) {
-		wavData := createValidWAV()
+		wavData := createWAV()
 		copy(wavData[8:12], "ABCD") // Corrupt WAVE format
 
 		_, err := ParseWAV(wavData)
@@ -98,7 +98,7 @@ func TestParseWAV(t *testing.T) {
 	})
 
 	t.Run("Missing Format Chunk", func(t *testing.T) {
-		wavData := createValidWAV()
+		wavData := createWAV()
 		copy(wavData[12:16], "ABCD") // Corrupt format chunk ID
 
 		_, err := ParseWAV(wavData)
@@ -108,7 +108,7 @@ func TestParseWAV(t *testing.T) {
 	})
 
 	t.Run("Format Chunk Too Small", func(t *testing.T) {
-		wavData := createValidWAV()
+		wavData := createWAV()
 		binary.LittleEndian.PutUint32(wavData[16:20], 8) // Set format chunk size too small
 
 		_, err := ParseWAV(wavData)
@@ -118,7 +118,7 @@ func TestParseWAV(t *testing.T) {
 	})
 
 	t.Run("Unsupported WAV Format", func(t *testing.T) {
-		wavData := createValidWAV()
+		wavData := createWAV()
 		binary.LittleEndian.PutUint16(wavData[20:22], 2) // Change from PCM (1) to another format
 
 		_, err := ParseWAV(wavData)
@@ -128,7 +128,7 @@ func TestParseWAV(t *testing.T) {
 	})
 
 	t.Run("Missing Data Chunk", func(t *testing.T) {
-		wavData := createValidWAV()
+		wavData := createWAV()
 		copy(wavData[36:40], "ABCD") // Corrupt data chunk ID
 
 		_, err := ParseWAV(wavData)
@@ -138,7 +138,7 @@ func TestParseWAV(t *testing.T) {
 	})
 
 	t.Run("Data Chunk Too Large", func(t *testing.T) {
-		wavData := createValidWAV()
+		wavData := createWAV()
 		binary.LittleEndian.PutUint32(wavData[40:44], uint32(1000000)) // Set data chunk size too large
 
 		_, err := ParseWAV(wavData)
@@ -148,7 +148,7 @@ func TestParseWAV(t *testing.T) {
 	})
 
 	t.Run("Zero Bytes Per Frame", func(t *testing.T) {
-		wavData := createValidWAV()
+		wavData := createWAV()
 		// Set both channels and bits per sample to 0 to make bytes per frame = 0
 		binary.LittleEndian.PutUint16(wavData[22:24], 0) // channels
 		binary.LittleEndian.PutUint16(wavData[34:36], 0) // bits per sample

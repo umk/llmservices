@@ -1,9 +1,8 @@
-package client
+package thread
 
 import (
-	"errors"
-
 	"github.com/umk/llmservices/pkg/adapter"
+	"github.com/umk/llmservices/pkg/client"
 )
 
 type MessagesFrame struct {
@@ -16,15 +15,12 @@ type MessagesFrame struct {
 	Tokens int64 `json:"total_tokens"`
 }
 
-func (f *MessagesFrame) Response() (*adapter.AssistantMessage, error) {
+func (f *MessagesFrame) Last() (adapter.Message, bool) {
 	if n := len(f.Messages); n > 0 {
-		m := f.Messages[n-1]
-		if m.OfAssistantMessage != nil {
-			return m.OfAssistantMessage, nil
-		}
+		return f.Messages[n-1], true
 	}
 
-	return nil, errors.New("frame doesn't contain an assistant message")
+	return adapter.Message{}, false
 }
 
 func getEstimatedFrameSize(frame *MessagesFrame) int64 {
@@ -74,4 +70,26 @@ func getEstimatedMessageSize(message *adapter.Message) int64 {
 	}
 
 	return size
+}
+
+// SetFrameTokens calculates and assigns the number of tokens for each frame in the thread.
+func SetFrameTokens(thread *Thread, samples *client.Samples) {
+	b := samples.BytesPerTok()
+
+	var tokens int64
+	for i := range thread.Frames {
+		f := &thread.Frames[i]
+		if len(f.Messages) == 0 {
+			continue
+		}
+		if f.Tokens > 0 {
+			d := f.Tokens - tokens
+			f.FrameTokens = max(d, 0)
+			tokens = f.Tokens
+		} else {
+			size := getEstimatedFrameSize(f)
+			f.FrameTokens = int64(float32(size) / b)
+			tokens += f.FrameTokens
+		}
+	}
 }

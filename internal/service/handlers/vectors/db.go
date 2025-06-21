@@ -14,7 +14,7 @@ import (
 
 var databases sync.Map
 
-func CreateDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func CreateDatabaseRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req createDatabaseRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func CreateDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func DeleteDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func DeleteDatabaseRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req deleteDatabaseRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func DeleteDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func ReadDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func ReadDatabaseRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req readDatabaseRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func ReadDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	return c.GetResponse(resp)
 }
 
-func WriteDatabase(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func WriteDatabaseRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req writeDatabaseRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err

@@ -6,15 +6,15 @@ import (
 	"github.com/umk/jsonrpc2"
 )
 
-func GetCompletion(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func GetCompletionRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req getCompletionRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
 	}
 
-	cl := getClient(req.ClientID)
-	if cl == nil {
-		return nil, errClientNotFound
+	cl, err := GetClient(req.ClientID)
+	if err != nil {
+		return nil, err
 	}
 
 	resp, err := cl.Completion(ctx, req.Messages, req.Params)
@@ -27,15 +27,15 @@ func GetCompletion(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	})
 }
 
-func GetEmbeddings(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func GetEmbeddingsRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req getEmbeddingsRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
 	}
 
-	cl := getClient(req.ClientID)
-	if cl == nil {
-		return nil, errClientNotFound
+	cl, err := GetClient(req.ClientID)
+	if err != nil {
+		return nil, err
 	}
 
 	resp, err := cl.Embeddings(ctx, req.Input, req.Params)
@@ -48,15 +48,15 @@ func GetEmbeddings(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	})
 }
 
-func GetStatistics(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
+func GetStatisticsRPC(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	var req getStatisticsRequest
 	if err := c.GetRequestBody(&req); err != nil {
 		return nil, err
 	}
 
-	cl := getClient(req.ClientID)
-	if cl == nil {
-		return nil, errClientNotFound
+	cl, err := GetClient(req.ClientID)
+	if err != nil {
+		return nil, err
 	}
 
 	resp := getStatisticsResponse{
@@ -64,25 +64,4 @@ func GetStatistics(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
 	}
 
 	return c.GetResponse(resp)
-}
-
-func GetThreadCompletion(ctx context.Context, c jsonrpc2.RPCContext) (any, error) {
-	var req getThreadCompletionRequest
-	if err := c.GetRequestBody(&req); err != nil {
-		return nil, err
-	}
-
-	cl := getClient(req.ClientID)
-	if cl == nil {
-		return nil, errClientNotFound
-	}
-
-	resp, err := cl.ThreadCompletion(ctx, &req.Thread, req.Params)
-	if err != nil {
-		return nil, newCompletionError(err)
-	}
-
-	return c.GetResponse(getThreadCompletionResponse{
-		ThreadCompletion: resp,
-	})
 }
