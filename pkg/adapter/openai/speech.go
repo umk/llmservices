@@ -8,9 +8,8 @@ import (
 	"math"
 
 	"github.com/openai/openai-go"
-	"github.com/umk/llmservices/internal/audio"
-	"github.com/umk/llmservices/internal/config"
 	"github.com/umk/llmservices/pkg/adapter"
+	"github.com/umk/llmservices/pkg/adapter/internal/audio"
 )
 
 func (c *Adapter) Speech(ctx context.Context, message adapter.SpeechMessage, params adapter.SpeechParams) (adapter.Speech, error) {
@@ -32,7 +31,7 @@ func (c *Adapter) Speech(ctx context.Context, message adapter.SpeechMessage, par
 		return adapter.Speech{}, err
 	}
 
-	n := config.Cur.AudioBufSize
+	n := 1 << 21
 	if resp.ContentLength != -1 {
 		// Ensure content length is not greater than 1GB
 		if resp.ContentLength > 1<<30 {

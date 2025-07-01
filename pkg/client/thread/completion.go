@@ -3,6 +3,7 @@ package thread
 import (
 	"context"
 	"errors"
+	"slices"
 
 	"github.com/umk/llmservices/pkg/adapter"
 	"github.com/umk/llmservices/pkg/client"
@@ -29,13 +30,18 @@ func (c *Client) Completion(ctx context.Context, thread Thread, params adapter.C
 		return Completion{}, err
 	}
 
-	f := &thread.Frames[len(thread.Frames)-1]
+	thread.Frames = slices.Clone(thread.Frames)
+
+	n := len(thread.Frames) - 1
+	f := &thread.Frames[n]
 
 	message := resp.Message
-	f.Messages = append(f.Messages, adapter.Message{
-		OfAssistantMessage: &message,
-	})
-	f.Tokens = resp.Usage.PromptTokens + resp.Usage.CompletionTokens
+	thread.Frames[n] = MessagesFrame{
+		Messages: append(f.Messages, adapter.Message{
+			OfAssistantMessage: &message,
+		}),
+		Tokens: resp.Usage.PromptTokens + resp.Usage.CompletionTokens,
+	}
 
 	// Assign the token counts to frames after client stats have been updated.
 	SetFrameTokens(&thread, c.Samples)

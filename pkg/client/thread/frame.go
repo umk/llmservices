@@ -15,12 +15,20 @@ type MessagesFrame struct {
 	Tokens int64 `json:"total_tokens"`
 }
 
-func (f *MessagesFrame) Last() (adapter.Message, bool) {
+func (f *MessagesFrame) First() (*adapter.Message, bool) {
 	if n := len(f.Messages); n > 0 {
-		return f.Messages[n-1], true
+		return &f.Messages[0], true
 	}
 
-	return adapter.Message{}, false
+	return nil, false
+}
+
+func (f *MessagesFrame) Last() (*adapter.Message, bool) {
+	if n := len(f.Messages); n > 0 {
+		return &f.Messages[n-1], true
+	}
+
+	return nil, false
 }
 
 func getEstimatedFrameSize(frame *MessagesFrame) int64 {

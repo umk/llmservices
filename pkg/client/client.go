@@ -22,7 +22,7 @@ const (
 )
 
 func New(p *Config) (*Client, error) {
-	a, err := GetAdapter(p)
+	a, err := Adapter(p)
 	if err != nil {
 		return nil, err
 	}
@@ -35,20 +35,20 @@ func New(p *Config) (*Client, error) {
 	}, nil
 }
 
-func GetAdapter(p *Config) (adapter.Adapter, error) {
+func Adapter(p *Config) (adapter.Adapter, error) {
 	if p.Preset == nil {
-		return GetOpenAIAdapter(p)
+		return AdapterOpenAI(p)
 	}
 
 	switch *p.Preset {
 	case OpenAI, Ollama:
-		return GetOpenAIAdapter(p)
+		return AdapterOpenAI(p)
 	default:
 		panic("preset is not supported")
 	}
 }
 
-func GetOpenAIAdapter(p *Config) (adapter.Adapter, error) {
+func AdapterOpenAI(p *Config) (adapter.Adapter, error) {
 	p, err := getConfig(p, OpenAI, Ollama)
 	if err != nil {
 		return nil, err

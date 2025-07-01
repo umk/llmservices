@@ -1,33 +1,27 @@
 package config
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
-	"strings"
+
+	"github.com/umk/llmservices/internal/service/handlers"
+	"github.com/umk/llmservices/pkg/client"
 )
 
 type Config struct {
-	// Vectors database repack percentage threshold
-	RepackPercent int
-
-	// Pooled vector size. Can be greater or less to the size of actual vectors
-	// operated by a client.
-	VectorBufSize int
-
-	// Size of an audio buffer used by default.
-	AudioBufSize int
-
-	// Absolute or relative path to a configuration file, or dash if configuration
-	// should be read from standard input.
-	Config string
+	// Unix domain socket path. If set, serve from this socket instead of stdio.
+	Socket string
+	// Path to a configuration file. If not specified, a default file is used.
+	File string
+	// Name of the default client to override the config file's Default.
+	Default string
 }
 
 var Cur = Config{
-	RepackPercent: 10,
-	VectorBufSize: 1 << 12,
-	AudioBufSize:  1 << 21,
+	Socket:  "",
+	File:    "",
+	Default: "",
 }
 
 func Init() error {
@@ -39,10 +33,9 @@ func Init() error {
 		flag.PrintDefaults()
 	}
 
-	flag.IntVar(&Cur.RepackPercent, "repack", Cur.RepackPercent, "percentage of deleted items that triggers repack")
-	flag.IntVar(&Cur.VectorBufSize, "vectorbuf", Cur.VectorBufSize, "vector size in vectors pool")
-	flag.IntVar(&Cur.AudioBufSize, "audiobuf", Cur.AudioBufSize, "size of audio buffer in bytes")
-	flag.StringVar(&Cur.Config, "config", Cur.Config, "path to configuration file, or dash to read from STDIN")
+	flag.StringVar(&Cur.Socket, "socket", Cur.Socket, "unix domain socket path to serve from instead of stdio")
+	flag.StringVar(&Cur.File, "config", Cur.File, "path to a configuration file")
+	flag.StringVar(&Cur.Default, "default", Cur.Default, "ID of default client")
 
 	// Parse the flags
 	flag.Parse()
@@ -52,22 +45,55 @@ func Init() error {
 		os.Exit(2)
 	}
 
-	// Validate repack percentage
-	if Cur.RepackPercent <= 0 || Cur.RepackPercent > 100 {
-		return errors.New("repack percentage must be between 1 and 100")
+	f, err := readConfigFiles()
+	if err != nil {
+		return fmt.Errorf("failed to read config file: %w", err)
 	}
 
-	// Validate vector size
-	if Cur.VectorBufSize <= 0 {
-		return errors.New("vector size must be greater than 0")
+	if err := initClients(f); err != nil {
+		return fmt.Errorf("failed to initialize clients: %w", err)
 	}
 
-	// Validate audio buffer size
-	if Cur.AudioBufSize < 100_000 {
-		return errors.New("audio buffer size must be at least 100,000 bytes")
+	return nil
+}
+
+func initClients(config ConfigFile) error {
+	if config.Clients == nil {
+		return nil
 	}
 
-	Cur.Config = strings.TrimSpace(Cur.Config)
+	clients := make(map[string]*client.Client)
+
+	for id, conf := range config.Clients {
+		c, err := client.New(&conf)
+		if err != nil {
+			return err
+		}
+		clients[id] = c
+	}
+
+	for id, c := range clients {
+		handlers.SetGlobalClient(id, c)
+	}
+
+	// Handle default client logic
+	def := Cur.Default
+	if def == "" {
+		def = config.Default
+	}
+
+	if def != "" {
+		if c, ok := clients[def]; ok {
+			handlers.SetGlobalClient("default", c)
+		} else {
+			return fmt.Errorf("default client %q not found", def)
+		}
+	} else if len(clients) == 1 {
+		for _, c := range clients {
+			handlers.SetGlobalClient("default", c)
+			break
+		}
+	}
 
 	return nil
 }

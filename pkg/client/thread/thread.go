@@ -27,14 +27,24 @@ func (t *Thread) Response() (adapter.AssistantMessage, error) {
 	return adapter.AssistantMessage{}, errors.New("frame doesn't contain an assistant message")
 }
 
-func (t *Thread) Last() (adapter.Message, bool) {
+func (t *Thread) First() (*adapter.Message, bool) {
+	for i := range len(t.Frames) {
+		if m, ok := t.Frames[i].First(); ok {
+			return m, true
+		}
+	}
+
+	return nil, false
+}
+
+func (t *Thread) Last() (*adapter.Message, bool) {
 	for i := len(t.Frames) - 1; i >= 0; i-- {
 		if m, ok := t.Frames[i].Last(); ok {
 			return m, true
 		}
 	}
 
-	return adapter.Message{}, false
+	return nil, false
 }
 
 func (t *Thread) Tokens(samples *client.Samples) int64 {
