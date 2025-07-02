@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/openai/openai-go v1.3.0
-	github.com/umk/jsonrpc2 v0.0.3-0.20250629153131-cf87db84e033
+	github.com/umk/jsonrpc2 v0.0.3
 	golang.org/x/sync v0.14.0
 	gopkg.in/yaml.v3 v3.0.1
 )
